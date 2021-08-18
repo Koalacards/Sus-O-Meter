@@ -95,7 +95,7 @@ async def sus_o_meter(ctx):
 async def sus_words(ctx):
     title="Sus Words List"
     description=", ".join(sus_list)
-    colour=discord.Color.orange()
+    colour=discord.Color.purple()
 
     await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
 
@@ -112,6 +112,20 @@ async def suggest_sus_word(ctx, word:str):
 def _create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed
+
+@slash.slash(name='help', description='View all of the commands and learn a bit about Sus-O-Meter!')
+async def help(ctx):
+    title="Sus-O-Meter Help Page"
+    description=f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in the past {num_messages_to_search} messages sent in the channel.\n\n The commands are as follows:\n\n" \
+        "**/sus-o-meter**: Runs the Sus-O-Meter on the channel the command is called in to see who is the most sus. Gives the top 10 sus users.\n\n" \
+        "**/sus-words**: Shows all of the sus words that the Sus-O-Meter checks for.\n\n" \
+        "**/suggest-sus-word**: Allows you to input a suggestion for a sus word that should be added to the sus list! Word goes directly to the developer for consideration.\n\n" \
+        "**/help**: Shows this page.\n\n"\
+        "I hope you enjoy the Sus-O-Meter, and don't be too sus!"
+
+    colour=discord.Color.purple()
+
+    await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
 
 
 #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
