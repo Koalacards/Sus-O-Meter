@@ -70,9 +70,9 @@ async def sus_o_meter(ctx):
     description=""
 
     if len(sus_dict.values()) == 0:
-        description+=f"To my surprise, there are no sus messages in this channel for the past {num_messages_to_search} messages! Everyone must be a crewmate :angel:"
+        description+=f"To my surprise, there are no sus words in this channel for the past {num_messages_to_search} messages! Everyone must be a crewmate :angel:"
     else:
-        description+=f"In the last {num_messages_to_search} words of #{sus_channel.name}, the most sus people are:\n\n"
+        description+=f"In the last {num_messages_to_search} sent messages to #{sus_channel.name}, the most sus users are:\n\n"
 
     count = 1
 
