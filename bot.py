@@ -86,7 +86,7 @@ async def sus_o_meter(ctx):
 
     embed = _create_embed(title, description, colour)
 
-    if len(sus_dict.values()) == 0:
+    if len(sus_dict.values()) > 0:
         embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures - 1))])
 
     await ctx.send(embed=embed, components=buttons)
