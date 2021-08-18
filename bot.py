@@ -63,7 +63,7 @@ async def on_ready():
 async def sus_o_meter(ctx):
     await ctx.defer()
     sus_channel= ctx.channel
-    title=f"Sus-O-Meter Evaluation for channel {sus_channel.name}"
+    title=f"Sus-O-Meter Evaluation for channel #{sus_channel.name}"
     colour=discord.Color.orange()
     sus_dict = await most_sus_users_count(sus_channel)
 
@@ -72,7 +72,7 @@ async def sus_o_meter(ctx):
     if len(sus_dict.values()) == 0:
         description+=f"To my surprise, there are no sus messages in this channel for the past {num_messages_to_search} messages! Everyone must be a crewmate :angel:"
     else:
-        description+=f"In the last {num_messages_to_search} words of {sus_channel.name}, the most sus people are:\n\n"
+        description+=f"In the last {num_messages_to_search} words of #{sus_channel.name}, the most sus people are:\n\n"
 
     count = 1
 
