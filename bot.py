@@ -10,8 +10,6 @@ import dbfunc
 import json
 from timeit import default_timer as timer
 
-guild_ids = [752664024910397522, 876103457407385661, 836244897127333919]
-
 client = commands.Bot(".")
 slash= SlashCommand(client, sync_commands=True, override_type=True)
 
@@ -44,7 +42,7 @@ sus_list = get_sus_list()
 async def on_ready():
     DiscordComponents(client, slash)
 
-@slash.slash(name='sus-o-meter', guild_ids=guild_ids, description="Who is the most sus in this channel?")
+@slash.slash(name='sus-o-meter', description="Who is the most sus in this channel?")
 async def sus_o_meter(ctx):
     await ctx.defer()
     sus_channel= ctx.channel
@@ -71,7 +69,7 @@ async def sus_o_meter(ctx):
 
     await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
 
-@slash.slash(name='sus-words', guild_ids=guild_ids, description="Find out what words make people sus!")
+@slash.slash(name='sus-words', description="Find out what words make people sus!")
 async def sus_words(ctx):
     title="Sus Words List"
     description=", ".join(sus_list)
@@ -79,7 +77,7 @@ async def sus_words(ctx):
 
     await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
 
-@slash.slash(name='suggest-sus-word', guild_ids=guild_ids, description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
+@slash.slash(name='suggest-sus-word', description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
 async def suggest_sus_word(ctx, word:str):
     suggestion_channel=client.get_channel(SUGGESTION_CHANNEL)
     if suggestion_channel is None:
