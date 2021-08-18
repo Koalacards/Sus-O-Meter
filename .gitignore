@@ -3,6 +3,13 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+#The files to ignore on this specific project
+confidential.py
+.vscode
+.idea
+*.db
+
+
 # User-specific files
 *.rsuser
 *.suo
