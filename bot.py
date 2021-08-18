@@ -94,7 +94,6 @@ def _create_embed(title, description, colour):
 
 #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
 async def most_sus_users_count(channel):
-    start = timer()
 
     sus_dict = {}
 
@@ -102,7 +101,6 @@ async def most_sus_users_count(channel):
     async for message in channel.history(limit=num_messages_to_search):
         author = message.author
         content = message.content.lower()
-        print(content)
         content_words = content.split()
         for word in content_words:
             if word in sus_list:
@@ -116,9 +114,6 @@ async def most_sus_users_count(channel):
 
     for item in sorted_sus_list:
         sorted_sus_dict[item[0]] = item[1]
-
-    end = timer()
-    print(end-start)
 
     return sorted_sus_dict
 
