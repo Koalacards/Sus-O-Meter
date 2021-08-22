@@ -161,4 +161,8 @@ async def add_sus_word(ctx, word:str):
         await ctx.send(":thumbsup:")
 
 
+@client.command()
+async def servers(ctx):
+    await ctx.send(str(len(client.guilds)))
+
 client.run(RUN_ID)
