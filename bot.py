@@ -154,7 +154,7 @@ async def most_sus_users_count(channel):
     return sorted_sus_dict
 
 @client.command()
-async def add_sus_word(ctx, word:str):
+async def add_sus_word(ctx, *, word:str):
     if ctx.author.id == 264034992970006528:
         sus_list.append(word)
         dbfunc.set_sus_words(sus_list)
