@@ -160,6 +160,12 @@ async def add_sus_word(ctx, *, word:str):
         dbfunc.set_sus_words(sus_list)
         await ctx.send(":thumbsup:")
 
+@client.command()
+async def refresh_sus_list(ctx):
+    if ctx.author.id == 264034992970006528:
+        sus_list = get_sus_list()
+        await ctx.send(":thumbsup:")
+
 
 @client.command()
 async def servers(ctx):
