@@ -23,9 +23,8 @@ def set_server_language(id, language):
     if len(query) == 0:
         ServerLanguage.create(id=id, language=language)
     else:
-        for item in query:
-            item.language=language
-            item.save()
+        new_query = ServerLanguage.update(language=language).where(ServerLanguage.id == id)
+        return new_query.execute()
 
 def get_server_language(id):
     query = query = ServerLanguage.select().where(ServerLanguage.id == id)
