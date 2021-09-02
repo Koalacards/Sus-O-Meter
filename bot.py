@@ -1,39 +1,27 @@
 import discord
 from discord.ext import commands
-from discord_components.interaction import Interaction
 from discord_slash import SlashCommand
 from discord_slash.cog_ext import manage_commands
-from discord_components import ButtonStyle, Button
-from discord_slash_components import DiscordComponents
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle
 from confidential import RUN_ID, SUGGESTION_CHANNEL
+from vars import kinda_sus_pictures
 import dbfunc
 import json
 import random
-from timeit import default_timer as timer
+
+guild_ids=[876103457407385661]
 
 client = commands.Bot(".")
 slash= SlashCommand(client, sync_commands=True, override_type=True)
 
-invite_button = Button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
-support_button = Button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")\
+invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
+support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
 
-kinda_sus_pictures=["https://i.etsystatic.com/26195327/r/il/b9103b/2797002083/il_fullxfull.2797002083_t400.jpg",
- "https://imgix.bustle.com/uploads/image/2020/10/31/31aa14f0-bc99-4e6b-b785-26ae420971dd-screen-shot-2020-10-31-at-52151-pm.png?w=1200&h=630&fit=crop&crop=faces&fm=jpg",
- "https://image-cdn.neatoshop.com/styleimg/113537/none/black/default/477968-20;1605375643x.jpg",
- "https://ih1.redbubble.net/image.1042054698.6192/st,small,507x507-pad,600x600,f8f8f8.jpg",
- "https://cdn.shopify.com/s/files/1/0324/7941/2283/products/LookinKindaSus1_740x.jpg?v=1607627480",
- "http://www.rogueduck.art/uploads/1/2/4/7/124740057/s829560345432686266_p124_i1_w450.png",
- "https://imageproxy.ifunny.co/crop:x-20,resize:640x,quality:90x75/images/109afed84e8549231a40801bc7071ba2e2eaffb52863c22cafd6d5c631839d10_1.jpg",
- "https://i1.sndcdn.com/artworks-BZOdK0DGnlFHa23y-jG4Vcw-t500x500.jpg",
- "https://i.etsystatic.com/25325402/r/il/39e5de/2600613663/il_570xN.2600613663_mmum.jpg",
- "https://res.cloudinary.com/teepublic/image/private/s--g97Q4qXJ--/t_Resized%20Artwork/c_fit,g_north_west,h_954,w_954/co_000000,e_outline:35/co_000000,e_outline:inner_fill:35/co_ffffff,e_outline:35/co_ffffff,e_outline:inner_fill:35/co_bbbbbb,e_outline:3:1000/c_mpad,g_center,h_1260,w_1260/b_rgb:eeeeee/c_limit,f_auto,h_630,q_90,w_630/v1601510568/production/designs/14563420_0.jpg"
- "https://i.imgflip.com/4kg413.jpg",
- "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcRsKHUFDoYcyODaSg9NOS_gbHrUvx428plJ0w&usqp=CAU",
- "https://res.cloudinary.com/teepublic/image/private/s--WaNQLAIU--/t_Resized%20Artwork/c_fit,g_north_west,h_1054,w_1054/co_ffffff,e_outline:53/co_ffffff,e_outline:inner_fill:53/co_bbbbbb,e_outline:3:1000/c_mpad,g_center,h_1260,w_1260/b_rgb:eeeeee/c_limit,f_auto,h_630,q_90,w_630/v1606090299/production/designs/9596239_1.jpg",
- "https://images.fineartamerica.com/images/artworkimages/mediumlarge/3/among-us-being-very-sus-trung-dinh-art.jpg",
- "https://pbs.twimg.com/media/E2IGViFXMAAyldO.png"]
 
 buttons = [invite_button, support_button]
+
+action_row = create_actionrow(*buttons)
 
 num_messages_to_search = 1000
 
@@ -47,6 +35,19 @@ suggest_sus_word_options=[
     )
 ]
 
+language_options=[
+    manage_commands.create_option(
+        name="language",
+        description="The language of the bot",
+        option_type=3,
+        required=True,
+        choices=[
+            "English",
+            "Spanish"
+        ]
+    )
+]
+
 def get_sus_list():
     sus_list_str = dbfunc.get_sus_words_str()
     json_compatible= sus_list_str.replace("'", "\"")
@@ -57,9 +58,9 @@ sus_list = get_sus_list()
 
 @client.event
 async def on_ready():
-    DiscordComponents(client, slash)
+    print("ready")
 
-@slash.slash(name='sus-o-meter', description="Who is the most sus in this channel?")
+@slash.slash(name='sus-o-meter', guild_ids=guild_ids, description="Who is the most sus in this channel?")
 async def sus_o_meter(ctx):
     await ctx.defer()
     sus_channel= ctx.channel
@@ -89,23 +90,23 @@ async def sus_o_meter(ctx):
     if len(sus_dict.values()) > 0:
         embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
 
-    await ctx.send(embed=embed, components=buttons)
+    await ctx.send(embed=embed, components=[action_row])
 
-@slash.slash(name='sus-words', description="Find out what words make people sus!")
+@slash.slash(name='sus-words', guild_ids=guild_ids, description="Find out what words make people sus!")
 async def sus_words(ctx):
     title="Sus Words List"
     description=", ".join(sus_list)
     colour=discord.Color.purple()
 
-    await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
+    await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
 
-@slash.slash(name='suggest-sus-word', description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
+@slash.slash(name='suggest-sus-word', guild_ids=guild_ids, description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
 async def suggest_sus_word(ctx, word:str):
     suggestion_channel=client.get_channel(SUGGESTION_CHANNEL)
     if suggestion_channel is None:
-        await ctx.send(embed=_create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), components=buttons)
+        await ctx.send(embed=_create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), components=[action_row])
     else:
-        await ctx.send(embed=_create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), components=buttons)
+        await ctx.send(embed=_create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), components=[action_row])
 
         await suggestion_channel.send(embed=_create_embed(f"New Sus word suggestion by {ctx.author.name}", f"{word}", discord.Color.green()))
 
@@ -113,7 +114,7 @@ def _create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed
 
-@slash.slash(name='help', description='View all of the commands and learn a bit about Sus-O-Meter!')
+@slash.slash(name='help', guild_ids=guild_ids, description='View all of the commands and learn a bit about Sus-O-Meter!')
 async def help(ctx):
     title="Sus-O-Meter Help Page"
     description=f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in the past {num_messages_to_search} messages sent in the channel.\n\n The commands are as follows:\n\n" \
@@ -125,7 +126,39 @@ async def help(ctx):
 
     colour=discord.Color.purple()
 
-    await ctx.send(embed=_create_embed(title, description, colour), components=buttons)
+    await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
+
+@slash.slash(name='language', guild_ids=guild_ids, description='Set the language of Sus-O-Meter', options=language_options)
+async def language(ctx, language:str):
+    author = ctx.author
+    if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
+        guild_id = ctx.guild.id
+        dbfunc.set_server_language(guild_id, language)
+        title=""
+        description=""
+        colour=discord.Color.green()
+        if language == "English":
+            title="Success!"
+            description="Language Set to `English` Successfully!"
+        elif language == "Spanish":
+            title="¡Éxito!"
+            description="¡Idioma configurado en `español` correctamente!"
+
+        await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
+    else:
+        title=""
+        description=""
+        colour=discord.Color.red()
+        
+        if language =="English":
+            title="Error!"
+            description="You must have `ADMINISTRATOR` or `MANAGE_GUILD` permissions to run this command."
+        elif language == "Spanish":
+            title="¡Error!"
+            description="Debe tener los permisos `ADMINISTRATOR` o` MANAGE_GUILD` para ejecutar este comando."
+
+        await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
+
 
 
 #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
@@ -163,6 +196,7 @@ async def add_sus_word(ctx, *, word:str):
 @client.command()
 async def refresh_sus_list(ctx):
     if ctx.author.id == 264034992970006528:
+        global sus_list
         sus_list = get_sus_list()
         await ctx.send(":thumbsup:")
 
