@@ -5,12 +5,13 @@ from discord_slash.cog_ext import manage_commands
 from discord_slash.utils.manage_components import create_button, create_actionrow
 from discord_slash.model import ButtonStyle
 from confidential import RUN_ID, SUGGESTION_CHANNEL
-from vars import kinda_sus_pictures
+from vars import kinda_sus_pictures, num_messages_to_search
 import dbfunc
 import json
 import random
 
-guild_ids=[876103457407385661]
+#For testing with beta
+#guild_ids=[876103457407385661, 752664024910397522]
 
 client = commands.Bot(".")
 slash= SlashCommand(client, sync_commands=True, override_type=True)
@@ -18,13 +19,9 @@ slash= SlashCommand(client, sync_commands=True, override_type=True)
 invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
 support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
 
-
 buttons = [invite_button, support_button]
 
 action_row = create_actionrow(*buttons)
-
-num_messages_to_search = 1000
-
 
 suggest_sus_word_options=[
     manage_commands.create_option(
@@ -65,9 +62,10 @@ sus_list_spanish = get_sus_list_spanish()
 
 @client.event
 async def on_ready():
+    await client.change_presence(activity=discord.Game(name="/help | Now with spanish support!"))
     print("ready")
 
-@slash.slash(name='sus-o-meter', guild_ids=guild_ids, description="Who is the most sus in this channel?")
+@slash.slash(name='sus-o-meter', description="Who is the most sus in this channel?")
 async def sus_o_meter(ctx):
     await ctx.defer()
     language = dbfunc.get_server_language(ctx.guild.id)
@@ -84,7 +82,7 @@ async def sus_o_meter(ctx):
         if language == "English":
             description+=f"To my surprise, there are no sus words in this channel for the past {num_messages_to_search} messages! Everyone must be a crewmate :angel:"
         elif language == "Español":
-            description+=f"Para mi sorpresa, ¡no hay palabras de sus en este canal para los últimos {num_messages_to_search} mensajes! Todos deben ser compañeros de tripulación :angel:"
+            description+=f"Para mi sorpresa, ¡no hay sus palabras en este canal para los últimos {num_messages_to_search} mensajes! Todos deben ser compañeros de tripulación :angel:"
     else:
         if language == "English":
             description+=f"In the last {num_messages_to_search} sent messages to #{sus_channel.name}, the most sus users are:\n\n"
@@ -97,7 +95,7 @@ async def sus_o_meter(ctx):
         if count > 10:
             break
 
-        description+=f"{count}. **{author_name}** con un total de **{sus_words}** palabas de sus!\n"
+        description+=f"{count}. **{author_name}** con un total de **{sus_words}** sus palabras !\n"
         
         count+=1 
 
@@ -108,7 +106,7 @@ async def sus_o_meter(ctx):
 
     await ctx.send(embed=embed, components=[action_row])
 
-@slash.slash(name='sus-words', guild_ids=guild_ids, description="Find out what words make people sus!")
+@slash.slash(name='sus-words', description="Find out what words make people sus!")
 async def sus_words(ctx):
     language = dbfunc.get_server_language(ctx.guild.id)
 
@@ -117,13 +115,13 @@ async def sus_words(ctx):
     if language == "English":
         description=", ".join(sus_list)
     elif language == "Español":
-        title="Lista de palabras de Sus"
+        title="Lista de sus palabras"
         description=", ".join(sus_list_spanish)
     colour=discord.Color.purple()
 
     await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
 
-@slash.slash(name='suggest-sus-word', guild_ids=guild_ids, description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
+@slash.slash(name='suggest-sus-word', description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
 async def suggest_sus_word(ctx, word:str):
     language = dbfunc.get_server_language(ctx.guild.id)
     suggestion_channel=client.get_channel(SUGGESTION_CHANNEL)
@@ -144,7 +142,7 @@ def _create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed
 
-@slash.slash(name='help', guild_ids=guild_ids, description='View all of the commands and learn a bit about Sus-O-Meter!')
+@slash.slash(name='help', description='View all of the commands and learn a bit about Sus-O-Meter!')
 async def help(ctx):
     language = dbfunc.get_server_language(ctx.guild.id)
 
@@ -161,7 +159,7 @@ async def help(ctx):
         title="Página de ayuda de Sus-O-Meter"
         description=f"¡Bienvenido a Sus-O-Meter! Este es un bot muy simple que determina la mayor cantidad de sus usuarios en un canal en función de la cantidad de sus palabras que cada usuario ha dicho en el pasado {num_messages_to_search} mensajes enviados en el canal.\n\n Los comandos son los siguientes:\n\n" \
         "**/sus-o-meter**: Ejecuta el Sus-O-Meter en el canal en el que se llama al comando para ver quién es el más sus. Da los 10 mejores usuarios de sus.\n\n" \
-        "**/sus-words**: Muestra todas las palabras sus que busca el Sus-O-Meter.\n\n" \
+        "**/sus-words**: Muestra todas las sus palabras que busca el Sus-O-Meter.\n\n" \
         "**/suggest-sus-word**: ¡Le permite ingresar una sugerencia para una palabra sus que debe agregarse a la lista de sus! Word va directamente al desarrollador para su consideración.\n\n" \
         "**/help**: Muestra esta página.\n\n"\
         "**/language**: ¡Cambia el idioma a inglés o español!\n\n" \
@@ -172,7 +170,7 @@ async def help(ctx):
 
     await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
 
-@slash.slash(name='language', guild_ids=guild_ids, description='Set the language of Sus-O-Meter', options=language_options)
+@slash.slash(name='language', description='Set the language of Sus-O-Meter', options=language_options)
 async def language(ctx, language:str):
     author = ctx.author
     if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
@@ -254,7 +252,7 @@ async def refresh_sus_list(ctx):
         global sus_list
         global sus_list_spanish
         sus_list = get_sus_list()
-        sus_list_spanish = get_sus_list_spanish
+        sus_list_spanish = get_sus_list_spanish()
         await ctx.send(":thumbsup:")
 
 
