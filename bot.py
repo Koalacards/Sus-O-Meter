@@ -94,8 +94,11 @@ async def sus_o_meter(ctx):
     for author_name, sus_words in sus_dict.items():
         if count > 10:
             break
-
-        description+=f"{count}. **{author_name}** con un total de **{sus_words}** sus palabras !\n"
+        
+        if language == "English":
+            description+=f"{count}. **{author_name}** with a total of **{sus_words}** sus words!\n"
+        elif language == "Español":
+            description+=f"{count}. **{author_name}** con un total de **{sus_words}** sus palabras!\n"
         
         count+=1 
 
