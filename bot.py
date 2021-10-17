@@ -18,8 +18,9 @@ slash= SlashCommand(client, sync_commands=True, override_type=True)
 
 invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
 support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
+vote_button = create_button(label="Vote", style=ButtonStyle.URL, url="https://top.gg/bot/876097748255014932/vote")
 
-buttons = [invite_button, support_button]
+buttons = [invite_button, support_button, vote_button]
 
 action_row = create_actionrow(*buttons)
 
@@ -62,10 +63,12 @@ sus_list_spanish = get_sus_list_spanish()
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Game(name="/help | Now with spanish support!"))
+    await client.change_presence(activity=discord.Game(name="/help | Now with vote button!"))
     print("ready")
 
-@slash.slash(name='sus-o-meter', description="Who is the most sus in this channel?")
+@slash.slash(name='sus-o-meter',
+#guild_ids=guild_ids,
+description="Who is the most sus in this channel?")
 async def sus_o_meter(ctx):
     await ctx.defer()
     language = dbfunc.get_server_language(ctx.guild.id)
@@ -109,7 +112,9 @@ async def sus_o_meter(ctx):
 
     await ctx.send(embed=embed, components=[action_row])
 
-@slash.slash(name='sus-words', description="Find out what words make people sus!")
+@slash.slash(name='sus-words',
+#guild_ids=guild_ids,
+description="Find out what words make people sus!")
 async def sus_words(ctx):
     language = dbfunc.get_server_language(ctx.guild.id)
 
@@ -124,7 +129,9 @@ async def sus_words(ctx):
 
     await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
 
-@slash.slash(name='suggest-sus-word', description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
+@slash.slash(name='suggest-sus-word',
+#guild_ids=guild_ids,
+description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
 async def suggest_sus_word(ctx, word:str):
     language = dbfunc.get_server_language(ctx.guild.id)
     suggestion_channel=client.get_channel(SUGGESTION_CHANNEL)
@@ -145,7 +152,9 @@ def _create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed
 
-@slash.slash(name='help', description='View all of the commands and learn a bit about Sus-O-Meter!')
+@slash.slash(name='help',
+#guild_ids=guild_ids,
+description='View all of the commands and learn a bit about Sus-O-Meter!')
 async def help(ctx):
     language = dbfunc.get_server_language(ctx.guild.id)
 
@@ -173,7 +182,9 @@ async def help(ctx):
 
     await ctx.send(embed=_create_embed(title, description, colour), components=[action_row])
 
-@slash.slash(name='language', description='Set the language of Sus-O-Meter', options=language_options)
+@slash.slash(name='language',
+#guild_ids=guild_ids,
+description='Set the language of Sus-O-Meter', options=language_options)
 async def language(ctx, language:str):
     author = ctx.author
     if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
