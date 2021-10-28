@@ -70,6 +70,7 @@ async def on_ready():
 #guild_ids=guild_ids,
 description="Who is the most sus in this channel?")
 async def sus_o_meter(ctx):
+    print("Sus-O-Meter command called")
     await ctx.defer()
     language = dbfunc.get_server_language(ctx.guild.id)
     sus_channel= ctx.channel
@@ -116,6 +117,7 @@ async def sus_o_meter(ctx):
 #guild_ids=guild_ids,
 description="Find out what words make people sus!")
 async def sus_words(ctx):
+    print("sus words command called")
     language = dbfunc.get_server_language(ctx.guild.id)
 
     title="Sus Words List"
@@ -133,6 +135,7 @@ async def sus_words(ctx):
 #guild_ids=guild_ids,
 description='Send a sus word suggestion straight to the developer!', options=suggest_sus_word_options)
 async def suggest_sus_word(ctx, word:str):
+    print("suggest sus word command called")
     language = dbfunc.get_server_language(ctx.guild.id)
     suggestion_channel=client.get_channel(SUGGESTION_CHANNEL)
     if suggestion_channel is None:
@@ -156,6 +159,7 @@ def _create_embed(title, description, colour):
 #guild_ids=guild_ids,
 description='View all of the commands and learn a bit about Sus-O-Meter!')
 async def help(ctx):
+    print("help command called")
     language = dbfunc.get_server_language(ctx.guild.id)
 
     title="Sus-O-Meter Help Page"
@@ -186,6 +190,7 @@ async def help(ctx):
 #guild_ids=guild_ids,
 description='Set the language of Sus-O-Meter', options=language_options)
 async def language(ctx, language:str):
+    print("language command called")
     author = ctx.author
     if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
         guild_id = ctx.guild.id
@@ -219,12 +224,14 @@ async def language(ctx, language:str):
 
 #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
 async def most_sus_users_count(channel):
+    print("in most sus users function")
     language = dbfunc.get_server_language(channel.guild.id)
     sus_list_language = sus_list
     if language == "Español":
         sus_list_language = sus_list_spanish
     sus_dict = {}
 
+    print("Before looping through the 1000 messages")
     #For each message, check how many sus words are in there are attribute them all to the author
     async for message in channel.history(limit=num_messages_to_search):
 
@@ -235,15 +242,20 @@ async def most_sus_users_count(channel):
             if word in sus_list_language:
                 previous_sus_amount = sus_dict.get(author.name, 0)
                 sus_dict[author.name] = previous_sus_amount + 1
+    
+    print("After looping through the 1000 messages")
 
     #Sort the authors by how many sus words they have
     sorted_sus_list = sorted(sus_dict.items(), key=lambda x: x[1], reverse=True)
+
+    print("Completed sorting sus list")
 
     sorted_sus_dict = {}
 
     for item in sorted_sus_list:
         sorted_sus_dict[item[0]] = item[1]
 
+    print("Returning the sorted dict")
     return sorted_sus_dict
 
 @client.command()
