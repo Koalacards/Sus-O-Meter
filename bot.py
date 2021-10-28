@@ -110,8 +110,8 @@ async def sus_o_meter(ctx):
 
     if len(sus_dict.values()) > 0:
         embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
-
     await ctx.send(embed=embed, components=[action_row])
+    print("sus-o-meter embed sent")
 
 @slash.slash(name='sus-words',
 #guild_ids=guild_ids,
@@ -237,11 +237,12 @@ async def most_sus_users_count(channel):
 
         author = message.author
         content = message.content.lower()
-        content_words = content.split()
-        for word in content_words:
-            if word in sus_list_language:
-                previous_sus_amount = sus_dict.get(author.name, 0)
-                sus_dict[author.name] = previous_sus_amount + 1
+        if content != "":
+            content_words = content.split()
+            for word in content_words:
+                if word in sus_list_language:
+                    previous_sus_amount = sus_dict.get(author.name, 0)
+                    sus_dict[author.name] = previous_sus_amount + 1
     
     print("After looping through the 1000 messages")
 
