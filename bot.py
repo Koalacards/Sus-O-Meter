@@ -67,7 +67,7 @@ sus_list_spanish = get_sus_list_spanish()
 
 @client.event
 async def on_ready():
-    await client.change_presence(activity=discord.Game(name="/help | Now with vote button!"))
+    await client.change_presence(activity=discord.Game(name="/help | Now with nltk tokenization!"))
     print("ready")
 
 @slash.slash(name='sus-o-meter',
