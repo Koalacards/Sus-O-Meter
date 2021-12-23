@@ -9,6 +9,10 @@ from vars import kinda_sus_pictures, num_messages_to_search
 import dbfunc
 import json
 import random
+import nltk
+from nltk.tokenize import word_tokenize
+
+nltk.download('punkt')
 
 #For testing with beta
 #guild_ids=[876103457407385661, 752664024910397522]
@@ -238,7 +242,7 @@ async def most_sus_users_count(channel):
         author = message.author
         content = message.content.lower()
         if content != "":
-            content_words = content.split()
+            content_words = word_tokenize(content)
             for word in content_words:
                 if word in sus_list_language:
                     previous_sus_amount = sus_dict.get(author.name, 0)
