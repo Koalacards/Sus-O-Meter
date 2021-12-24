@@ -242,11 +242,14 @@ async def most_sus_users_count(channel):
         author = message.author
         content = message.content.lower()
         if content != "":
-            content_words = word_tokenize(content)
-            for word in content_words:
-                if word in sus_list_language:
-                    previous_sus_amount = sus_dict.get(author.name, 0)
-                    sus_dict[author.name] = previous_sus_amount + 1
+            try:
+                content_words = word_tokenize(content)
+                for word in content_words:
+                    if word in sus_list_language:
+                        previous_sus_amount = sus_dict.get(author.name, 0)
+                        sus_dict[author.name] = previous_sus_amount + 1
+            except:
+                pass
     
     print("After looping through the 1000 messages")
 
