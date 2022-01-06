@@ -1,3 +1,51 @@
+from discord_slash.utils.manage_components import create_button, create_actionrow
+from discord_slash.model import ButtonStyle
+from discord_slash.cog_ext import manage_commands
+
+
+invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
+support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
+vote_button = create_button(label="Vote", style=ButtonStyle.URL, url="https://top.gg/bot/876097748255014932/vote")
+
+buttons = [invite_button, support_button, vote_button]
+
+action_row = create_actionrow(*buttons)
+
+suggest_sus_word_options=[
+    manage_commands.create_option(
+        name="word",
+        description="A word that should be considered sus!",
+        option_type=3,
+        required=True
+    )
+]
+
+language_options=[
+    manage_commands.create_option(
+        name="language",
+        description="The language of the bot",
+        option_type=3,
+        required=True,
+        choices=[
+            "English",
+            "Español"
+        ]
+    )
+]
+
+list_type_options=[
+    manage_commands.create_option(
+        name="list_type",
+        description="The type of list the server will use! The community list is pre-made while the custom list you create yourself!",
+        option_type=3,
+        required=True,
+        choices=[
+            "Community",
+            "Custom"
+        ]
+    )
+]
+SUGGESTION_CHANNEL=877353245767520297
 num_messages_to_search = 1000
 kinda_sus_pictures=["https://i.etsystatic.com/26195327/r/il/b9103b/2797002083/il_fullxfull.2797002083_t400.jpg",
  "https://imgix.bustle.com/uploads/image/2020/10/31/31aa14f0-bc99-4e6b-b785-26ae420971dd-screen-shot-2020-10-31-at-52151-pm.png?w=1200&h=630&fit=crop&crop=faces&fm=jpg",

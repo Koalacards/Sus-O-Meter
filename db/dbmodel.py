@@ -1,6 +1,6 @@
 from peewee import *
 
-database = SqliteDatabase('suswords.db')
+database = SqliteDatabase('db/suswords.db')
 
 class UnknownField(object):
     def __init__(self, *_, **__): pass
@@ -8,6 +8,15 @@ class UnknownField(object):
 class BaseModel(Model):
     class Meta:
         database = database
+
+class CustomLists(BaseModel):
+    custom_list = TextField(null=True)
+    id = IntegerField(null=True)
+    list_type = TextField(null=True)
+
+    class Meta:
+        table_name = 'Custom Lists'
+        primary_key = False
 
 class ServerLanguage(BaseModel):
     id = IntegerField(null=True)
