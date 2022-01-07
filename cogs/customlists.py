@@ -9,7 +9,7 @@ import utils
 class CustomLists(commands.Cog):
 
     @cog_ext.cog_slash(name='list-type',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Select your list type between Community and Custom! (Default: Community)",
     options=vars.list_type_options)
     async def set_list_type(self, ctx, list_type:str):
@@ -26,7 +26,7 @@ class CustomLists(commands.Cog):
             await utils.need_permissions_embed(ctx, language)
 
     @cog_ext.cog_slash(name='custom-list-add',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Add a word to your custom list (can't contain spaces!)")
     async def custom_list_add(self, ctx, word:str):
         print("custom_list_add command called")
@@ -67,7 +67,7 @@ class CustomLists(commands.Cog):
             await utils.need_permissions_embed(ctx, language)
     
     @cog_ext.cog_slash(name='custom-list-remove',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Remove a word from your custom list!")
     async def custom_list_remove(self, ctx, word:str):
         print("custom_list_remove command called")
