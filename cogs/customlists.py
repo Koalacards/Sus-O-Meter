@@ -21,7 +21,7 @@ class CustomLists(commands.Cog):
             if language =="English":
                 await ctx.send(embed=utils.create_embed("Success!", f"List type set to `{list_type}`!", discord.Color.green()), components=[action_row])
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed("¡Éxito!", f"¡El tipo de lista se estableció en `{list_type}`!", discord.Color.green()), components=[action_row])
+                await ctx.send(embed=utils.create_embed("¡Éxito!", f"¡El tipo de lista se estableció en `{utils.translate_list_type(list_type)}`!", discord.Color.green()), components=[action_row])
         else:
             await utils.need_permissions_embed(ctx, language)
 
@@ -49,6 +49,13 @@ class CustomLists(commands.Cog):
                     await ctx.send(embed=utils.create_embed("¡Error!", f"¡`{word}` ya está en su lista personalizada!", discord.Color.red()), components=[action_row])
                 return
 
+            blacklist = utils.get_blacklist()
+            if word in blacklist:
+                if language =="English":
+                    await ctx.send(embed=utils.create_embed("Error!", f"The word you entered is blacklisted by Sus-O-Meter for being derrogatory or inappropriate.", discord.Color.red()), components=[action_row])
+                elif language == "Español":
+                    await ctx.send(embed=utils.create_embed("¡Error!", f"Sus-O-Meter pone en la lista negra la palabra que ingresó por ser despectiva o inapropiada.", discord.Color.red()), components=[action_row])
+                return
 
             custom_list.append(word)
             dbfunc.set_server_custom_list(ctx.guild.id, custom_list)

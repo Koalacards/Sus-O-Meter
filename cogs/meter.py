@@ -16,13 +16,14 @@ class Meter(commands.Cog):
         self.client = client
 
     @cog_ext.cog_slash(name='sus-o-meter',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Who is the most sus in this channel?")
     async def sus_o_meter(self, ctx):
         print("Sus-O-Meter command called")
         await ctx.defer()
         language = dbfunc.get_server_language(ctx.guild.id)
         sus_channel= ctx.channel
+        list_type = dbfunc.get_server_list_type(ctx.guild.id)
         title=f"Sus-O-Meter Evaluation for channel #{sus_channel.name}"
         if language == "Español":
             title=f"Evaluación Sus-O-Meter para canal #{sus_channel.name}"
@@ -30,6 +31,11 @@ class Meter(commands.Cog):
         sus_dict = await self.most_sus_users_count(sus_channel)
 
         description=""
+
+        if language == "English":
+            description+= f"List type used: **{list_type}** (Use `/list-type` to change)\n\n"
+        elif language == "Español":
+            description+= f"Tipo de lista utilizado: **{utils.translate_list_type(list_type)}** (Usa `/list-type` para cambiar)\n\n"
 
         if len(sus_dict.values()) == 0:
             if language == "English":
@@ -63,27 +69,43 @@ class Meter(commands.Cog):
         print("sus-o-meter embed sent")
 
     @cog_ext.cog_slash(name='sus-words',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Find out what words make people sus!")
     async def sus_words(self, ctx):
         print("sus words command called")
         language = dbfunc.get_server_language(ctx.guild.id)
+        list_type = dbfunc.get_server_list_type(ctx.guild.id)
 
         title="Sus Words List"
         description=""
         if language == "English":
-            sus_list = utils.get_sus_list()
-            description=", ".join(sus_list)
+            addition=""
+            if list_type == "Custom":
+                addition = ", or `/custom-list-add` and `/custom-list-remove` to change the words"
+            description+= f"List type used: **{list_type}** (Use `/list-type` to change lists{addition})\n\n"
         elif language == "Español":
-            title="Lista de sus palabras"
-            sus_list_spanish = utils.get_sus_list_spanish()
-            description=", ".join(sus_list_spanish)
+            addition=""
+            if list_type == "Custom":
+                addition=", o `/custom-list-add` y `/custom-list-remove` para cambiar las palabras"
+            description+= f"Tipo de lista utilizado: **{utils.translate_list_type(list_type)}** (Usa `/list-type` para cambiar listas{addition})\n\n"
+        
+        if list_type == "Custom":
+            custom_list = utils.get_custom_list(ctx.guild.id)
+            description+=", ".join(custom_list)
+        else:
+            if language == "English":
+                sus_list = utils.get_sus_list()
+                description+=", ".join(sus_list)
+            elif language == "Español":
+                title="Lista de sus palabras"
+                sus_list_spanish = utils.get_sus_list_spanish()
+                description+=", ".join(sus_list_spanish)
         colour=discord.Color.purple()
 
         await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
 
     @cog_ext.cog_slash(name='suggest-sus-word',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description="Send a sus word suggestion straight to the developer! (can't contain spaces!)", options=suggest_sus_word_options)
     async def suggest_sus_word(self, ctx, word:str):
         print("suggest sus word command called")
@@ -106,10 +128,12 @@ class Meter(commands.Cog):
             elif language == "Español":
                 await ctx.send(embed=utils.create_embed('Éxito!', 'Su (un poco) palabra de Sus ha sido enviada al desarrollador. ¡Gracias!', discord.Color.green()), components=[action_row])
 
-            await suggestion_channel.send(embed=utils.create_embed(f"New Sus word suggestion by {ctx.author.name}", f"Language: {language}\n Word: {word}", discord.Color.green()))
+            blacklist = utils.get_blacklist()
+            if word not in blacklist:
+                await suggestion_channel.send(embed=utils.create_embed(f"New Sus word suggestion by {ctx.author.name}", f"Language: {language}\n Word: {word}", discord.Color.green()))
 
     @cog_ext.cog_slash(name='help',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description='View all of the commands and learn a bit about Sus-O-Meter!')
     async def help(self, ctx):
         print("help command called")
@@ -118,20 +142,28 @@ class Meter(commands.Cog):
         title="Sus-O-Meter Help Page"
         description=f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in the past {num_messages_to_search} messages sent in the channel.\n\n The commands are as follows:\n\n" \
             "**/sus-o-meter**: Runs the Sus-O-Meter on the channel the command is called in to see who is the most sus. Gives the top 10 sus users.\n\n" \
-            "**/sus-words**: Shows all of the sus words that the Sus-O-Meter checks for.\n\n" \
+            "**/sus-words**: Shows all of the sus words that the Sus-O-Meter checks for (Shows Community or Custom list based on list type chosen).\n\n" \
             "**/suggest-sus-word**: Allows you to input a suggestion for a sus word that should be added to the sus list! Word goes directly to the developer for consideration.\n\n" \
             "**/help**: Shows this page.\n\n"\
             "**/language**: Changes the language to English or Spanish!\n\n" \
+            "**CUSTOM LIST COMMANDS** (moderator-only):\n\n" \
+            "**/list-type**: Changes the type of list between Community (the original list made by community members) and Custom (one that you can make yourself)!\n\n" \
+            "**/custom-list-add**: Adds a word to your custom list!\n\n" \
+            "**/custom-list-remove**: Removes a word from your custom list! (if it exists)\n\n" \
             "I hope you enjoy the Sus-O-Meter, and don't be too sus!"
 
         if language == "Español":
             title="Página de ayuda de Sus-O-Meter"
             description=f"¡Bienvenido a Sus-O-Meter! Este es un bot muy simple que determina la mayor cantidad de sus usuarios en un canal en función de la cantidad de sus palabras que cada usuario ha dicho en el pasado {num_messages_to_search} mensajes enviados en el canal.\n\n Los comandos son los siguientes:\n\n" \
             "**/sus-o-meter**: Ejecuta el Sus-O-Meter en el canal en el que se llama al comando para ver quién es el más sus. Da los 10 mejores usuarios de sus.\n\n" \
-            "**/sus-words**: Muestra todas las sus palabras que busca el Sus-O-Meter.\n\n" \
+            "**/sus-words**: Muestra todas las sus palabras que busca el Sus-O-Meter (Muestra la comunidad o la lista personalizada según el tipo de lista elegido).\n\n" \
             "**/suggest-sus-word**: ¡Le permite ingresar una sugerencia para una palabra sus que debe agregarse a la lista de sus! Word va directamente al desarrollador para su consideración.\n\n" \
             "**/help**: Muestra esta página.\n\n"\
             "**/language**: ¡Cambia el idioma a inglés o español!\n\n" \
+            "**COMANDOS DE LISTA PERSONALIZADOS** (solo moderador):\n\n" \
+            "**/list-type**: ¡Cambia el tipo de lista entre Comunidad (la lista original hecha por miembros de la comunidad) y Personalizada (una que puede hacer usted mismo)!\n\n" \
+            "**/custom-list-add**: ¡Agrega una palabra a tu lista personalizada!\n\n" \
+            "**/custom-list-remove**: ¡Elimina una palabra de tu lista personalizada! (si existiera)\n\n" \
             "Espero que disfrutes del Sus-O-Meter, ¡y no seas demasiado suspensivo!"
 
 
@@ -140,7 +172,7 @@ class Meter(commands.Cog):
         await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
 
     @cog_ext.cog_slash(name='language',
-    guild_ids=guild_ids,
+    #guild_ids=guild_ids,
     description='Set the language of Sus-O-Meter', options=language_options)
     async def language(self,ctx, language:str):
         print("language command called")
@@ -168,9 +200,13 @@ class Meter(commands.Cog):
     async def most_sus_users_count(self, channel):
         print("in most sus users function")
         language = dbfunc.get_server_language(channel.guild.id)
-        sus_list_language = utils.get_sus_list()
+        list_type = dbfunc.get_server_list_type(channel.guild.id)
+
+        word_list = utils.get_sus_list()
         if language == "Español":
-            sus_list_language = utils.get_sus_list_spanish()
+            word_list = utils.get_sus_list_spanish()
+        if list_type == "Custom":
+            word_list = utils.get_custom_list(channel.guild.id)
         sus_dict = {}
 
         print("Before looping through the 1000 messages")
@@ -183,7 +219,7 @@ class Meter(commands.Cog):
                 try:
                     content_words = word_tokenize(content)
                     for word in content_words:
-                        if word in sus_list_language:
+                        if word in word_list:
                             previous_sus_amount = sus_dict.get(author.name, 0)
                             sus_dict[author.name] = previous_sus_amount + 1
                 except:

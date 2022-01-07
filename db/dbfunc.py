@@ -18,6 +18,15 @@ def set_sus_words_spanish(words):
     query = SuswordsSpanish.update(words=words)
     return query.execute()
 
+def get_blacklisted_words_str():
+    query = BlacklistedWords.select()
+    for item in query:
+        return item.blacklisted
+
+def set_blacklisted_words(blacklisted):
+    query = BlacklistedWords.update(blacklisted=blacklisted)
+    return query.execute()
+
 def set_server_language(id, language):
     query = ServerLanguage.select().where(ServerLanguage.id == id)
     if len(query) == 0:
@@ -61,7 +70,7 @@ def set_server_custom_list(id, list_str:str):
 def get_server_custom_list(id):
     query = CustomLists.select().where(CustomLists.id == id)
     if len(query) == 0:
-        return []
+        return "[]"
     else:
         for item in query:
             return item.custom_list

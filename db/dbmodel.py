@@ -9,6 +9,13 @@ class BaseModel(Model):
     class Meta:
         database = database
 
+class BlacklistedWords(BaseModel):
+    blacklisted = TextField(null=True)
+
+    class Meta:
+        table_name = 'Blacklisted Words'
+        primary_key = False
+
 class CustomLists(BaseModel):
     custom_list = TextField(null=True)
     id = IntegerField(null=True)

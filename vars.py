@@ -48,7 +48,7 @@ list_type_options=[
         ]
     )
 ]
-SUGGESTION_CHANNEL=877353245767520297
+SUGGESTION_CHANNEL=928837547403149332
 num_messages_to_search = 1000
 kinda_sus_pictures=["https://i.etsystatic.com/26195327/r/il/b9103b/2797002083/il_fullxfull.2797002083_t400.jpg",
  "https://imgix.bustle.com/uploads/image/2020/10/31/31aa14f0-bc99-4e6b-b785-26ae420971dd-screen-shot-2020-10-31-at-52151-pm.png?w=1200&h=630&fit=crop&crop=faces&fm=jpg",

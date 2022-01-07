@@ -20,9 +20,21 @@ def get_custom_list(id):
     custom_list = json.loads(json_compatible)
     return custom_list
 
+def get_blacklist():
+    blacklist_str = dbfunc.get_blacklisted_words_str()
+    json_compatible= blacklist_str.replace("'", "\"")
+    blacklist = json.loads(json_compatible)
+    return blacklist
+
 def create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed
+
+def translate_list_type(list_type):
+    if list_type == "Community":
+        return "Comunidad"
+    else:
+        return "Personalizada"
 
 async def need_permissions_embed(ctx, language):
     title=""
