@@ -3,15 +3,12 @@ from discord.ext import commands
 from discord_slash import SlashCommand
 from confidential import RUN_ID
 
-
-#For testing with beta
-#guild_ids=[876103457407385661, 752664024910397522]
-
 client = commands.Bot("~")
 slash= SlashCommand(client, sync_commands=True, override_type=True)
 
 client.load_extension('cogs.admincommands')
 client.load_extension('cogs.meter')
+client.load_extension('cogs.customlists')
 
 @client.event
 async def on_ready():

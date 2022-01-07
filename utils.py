@@ -14,6 +14,12 @@ def get_sus_list_spanish():
     sus_list = json.loads(json_compatible)
     return sus_list
 
+def get_custom_list(id):
+    custom_list_str = dbfunc.get_server_custom_list(id)
+    json_compatible= custom_list_str.replace("'", "\"")
+    custom_list = json.loads(json_compatible)
+    return custom_list
+
 def create_embed(title, description, colour):
     embed = discord.Embed(title=title, description=description, colour=colour)
     return embed

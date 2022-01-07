@@ -11,10 +11,13 @@ buttons = [invite_button, support_button, vote_button]
 
 action_row = create_actionrow(*buttons)
 
+#For testing with beta
+guild_ids=[876103457407385661]
+
 suggest_sus_word_options=[
     manage_commands.create_option(
         name="word",
-        description="A word that should be considered sus!",
+        description="A word that should be considered sus (can't contain spaces)!",
         option_type=3,
         required=True
     )
@@ -36,7 +39,7 @@ language_options=[
 list_type_options=[
     manage_commands.create_option(
         name="list_type",
-        description="The type of list the server will use! The community list is pre-made while the custom list you create yourself!",
+        description="The type of list the server will use (Community is a premade list, Custom is your own!)",
         option_type=3,
         required=True,
         choices=[

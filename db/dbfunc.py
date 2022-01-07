@@ -53,7 +53,7 @@ def get_server_list_type(id):
 def set_server_custom_list(id, list_str:str):
     query = CustomLists.select().where(CustomLists.id == id)
     if len(query) == 0:
-        CustomLists.create(id=id, list_type="Custom", custom_list=list_str)
+        CustomLists.create(id=id, list_type="Community", custom_list=list_str)
     else:
         new_query = CustomLists.update(custom_list=list_str).where(CustomLists.id == id)
         return new_query.execute()
@@ -61,7 +61,7 @@ def set_server_custom_list(id, list_str:str):
 def get_server_custom_list(id):
     query = CustomLists.select().where(CustomLists.id == id)
     if len(query) == 0:
-        raise Exception("Query was 0 at get server custom list, which should never happen")
+        return []
     else:
         for item in query:
             return item.custom_list
