@@ -17,6 +17,7 @@ client.load_extension('cogs.customlists')
 async def on_ready():
     guild_count = str(len(client.guilds))
     await client.change_presence(activity=discord.Game(name=f"/help in {guild_count} servers | Now with custom lists!"))
+    update_stats.start()
     print("ready")
 
 @client.command()
@@ -36,6 +37,5 @@ async def update_stats():
         print(f"Posted server count ({client.topggpy.guild_count})")
     except Exception as e:
         print(f"Failed to post server count\n{e.__class__.__name__}: {e}")
-
 
 client.run(RUN_ID)
