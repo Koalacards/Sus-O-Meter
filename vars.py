@@ -6,8 +6,9 @@ from discord_slash.cog_ext import manage_commands
 invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
 support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
 vote_button = create_button(label="Vote", style=ButtonStyle.URL, url="https://top.gg/bot/876097748255014932/vote")
+github_button = create_button(label="Github", style=ButtonStyle.URL, url="https://github.com/Koalacards/Sus-O-Meter/")
 
-buttons = [invite_button, support_button, vote_button]
+buttons = [invite_button, support_button, vote_button, github_button]
 
 action_row = create_actionrow(*buttons)
 
