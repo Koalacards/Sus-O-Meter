@@ -1,12 +1,12 @@
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext
+from discord.commands import slash_command, Option
 import utils
 import db.dbfunc as dbfunc
 import random
 import nltk
 from nltk.tokenize import word_tokenize
-from vars import kinda_sus_pictures, num_messages_to_search, action_row, suggest_sus_word_options, language_options, SUGGESTION_CHANNEL, guild_ids
+from vars import kinda_sus_pictures, num_messages_to_search, ButtonRow, SUGGESTION_CHANNEL, guild_ids
 
 nltk.download('punkt')
 
@@ -15,7 +15,7 @@ class Meter(commands.Cog):
     def __init__(self, client) -> None:
         self.client = client
 
-    @cog_ext.cog_slash(name='sus-o-meter',
+    @slash_command(name='sus-o-meter',
     #guild_ids=guild_ids,
     description="Who is the most sus in this channel?")
     async def sus_o_meter(self, ctx):
@@ -65,10 +65,10 @@ class Meter(commands.Cog):
 
         if len(sus_dict.values()) > 0:
             embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
-        await ctx.send(embed=embed, components=[action_row])
+        await ctx.respond(embed=embed, view=ButtonRow())
         print("sus-o-meter embed sent")
 
-    @cog_ext.cog_slash(name='sus-words',
+    @slash_command(name='sus-words',
     #guild_ids=guild_ids,
     description="Find out what words make people sus!")
     async def sus_words(self, ctx):
@@ -102,37 +102,37 @@ class Meter(commands.Cog):
                 description+=", ".join(sus_list_spanish)
         colour=discord.Color.purple()
 
-        await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+        await ctx.respond(embed=utils.create_embed(title, description, colour), view=ButtonRow())
 
-    @cog_ext.cog_slash(name='suggest-sus-word',
+    @slash_command(name='suggest-sus-word',
     #guild_ids=guild_ids,
-    description="Send a sus word suggestion straight to the developer! (can't contain spaces!)", options=suggest_sus_word_options)
-    async def suggest_sus_word(self, ctx, word:str):
+    description="Send a sus word suggestion straight to the developer! (can't contain spaces!)")
+    async def suggest_sus_word(self, ctx, word:Option(str, "A word that should be considered sus (can't contain spaces)!")):
         print("suggest sus word command called")
         language = dbfunc.get_server_language(ctx.guild.id)
         suggestion_channel=self.client.get_channel(SUGGESTION_CHANNEL)
         split = word.split()
         if suggestion_channel is None:
             if language == "English":
-                await ctx.send(embed=utils.create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), view=ButtonRow())
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed('Error de Sus-O-Meter', 'Sus-O-Meter no pudo encontrar el canal de sugerencias interno. ¡Informe esto en nuestro servidor de soporte si puede!', discord.Color.red()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed('Error de Sus-O-Meter', 'Sus-O-Meter no pudo encontrar el canal de sugerencias interno. ¡Informe esto en nuestro servidor de soporte si puede!', discord.Color.red()), view=ButtonRow())
         elif split[0] != word:
             if language =="English":
-                await ctx.send(embed=utils.create_embed("Error!", "Your word cannot contain spaces or it will not be seen by Sus-O-Meter. If you wish to suggest a phrase, suggest the words individually (for example, instead of \"sussy baka\" suggest \"sussy\" and \"baka\")", discord.Color.red()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed("Error!", "Your word cannot contain spaces or it will not be seen by Sus-O-Meter. If you wish to suggest a phrase, suggest the words individually (for example, instead of \"sussy baka\" suggest \"sussy\" and \"baka\")", discord.Color.red()), view=ButtonRow())
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed("¡Error!", "Su palabra no puede contener espacios o Sus-O-Meter no la verá. Si desea sugerir una frase, sugiera las palabras individualmente (por ejemplo, en lugar de \"sussy baka\" sugiera \"sussy\" y \"baka\")", discord.Color.red()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed("¡Error!", "Su palabra no puede contener espacios o Sus-O-Meter no la verá. Si desea sugerir una frase, sugiera las palabras individualmente (por ejemplo, en lugar de \"sussy baka\" sugiera \"sussy\" y \"baka\")", discord.Color.red()), view=ButtonRow())
         else:
             if language == "English":
-                await ctx.send(embed=utils.create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), view=ButtonRow())
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed('Éxito!', 'Su (un poco) palabra de Sus ha sido enviada al desarrollador. ¡Gracias!', discord.Color.green()), components=[action_row])
+                await ctx.respond(embed=utils.create_embed('Éxito!', 'Su (un poco) palabra de Sus ha sido enviada al desarrollador. ¡Gracias!', discord.Color.green()), view=ButtonRow())
 
             blacklist = utils.get_blacklist()
             if word not in blacklist:
                 await suggestion_channel.send(embed=utils.create_embed(f"New Sus word suggestion by {ctx.author.name}", f"Language: {language}\n Word: {word}", discord.Color.green()))
 
-    @cog_ext.cog_slash(name='help',
+    @slash_command(name='help',
     #guild_ids=guild_ids,
     description='View all of the commands and learn a bit about Sus-O-Meter!')
     async def help(self, ctx):
@@ -169,12 +169,12 @@ class Meter(commands.Cog):
 
         colour=discord.Color.purple()
 
-        await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+        await ctx.respond(embed=utils.create_embed(title, description, colour), view=ButtonRow())
 
-    @cog_ext.cog_slash(name='language',
+    @slash_command(name='language',
     #guild_ids=guild_ids,
-    description='Set the language of Sus-O-Meter', options=language_options)
-    async def language(self,ctx, language:str):
+    description='Set the language of Sus-O-Meter')
+    async def language(self,ctx, language:Option(str, "The language of the bot", choices=["English", "Español"])):
         print("language command called")
         author = ctx.author
         if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
@@ -190,7 +190,7 @@ class Meter(commands.Cog):
                 title="¡Éxito!"
                 description="¡Idioma configurado en `Español` correctamente!"
 
-            await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+            await ctx.respond(embed=utils.create_embed(title, description, colour), view=ButtonRow())
         else:
             await utils.need_permissions_embed(ctx, language)
 

@@ -1,7 +1,7 @@
 import json
 import discord
 import db.dbfunc as dbfunc
-from vars import action_row
+from vars import ButtonRow
 def get_sus_list():
     sus_list_str = dbfunc.get_sus_words_str()
     json_compatible= sus_list_str.replace("'", "\"")
@@ -48,4 +48,4 @@ async def need_permissions_embed(ctx, language):
         title="¡Error!"
         description="Debe tener los permisos `ADMINISTRATOR` o` MANAGE_GUILD` para ejecutar este comando."
 
-    await ctx.send(embed=create_embed(title, description, colour), components=[action_row])
+    await ctx.respond(embed=create_embed(title, description, colour), view=ButtonRow())

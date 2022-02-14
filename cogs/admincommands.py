@@ -11,11 +11,11 @@ class AdminCommands(commands.Cog):
         if ctx.author.id == 264034992970006528:
             sus_list = utils.get_sus_list()
             if word in sus_list:
-                await ctx.send("word in sus list")
+                await ctx.respond("word in sus list")
                 return
             sus_list.append(word)
             dbfunc.set_sus_words(sus_list)
-            await ctx.send(":thumbsup:")
+            await ctx.respond(":thumbsup:")
 
 
     @commands.command()
@@ -23,11 +23,11 @@ class AdminCommands(commands.Cog):
         if ctx.author.id == 264034992970006528:
             sus_list_spanish = utils.get_sus_list_spanish()
             if word in sus_list_spanish:
-                await ctx.send("word in spanish sus list")
+                await ctx.respond("word in spanish sus list")
                 return
             sus_list_spanish.append(word)
             dbfunc.set_sus_words_spanish(sus_list_spanish)
-            await ctx.send(":thumbsup:")
+            await ctx.respond(":thumbsup:")
     
     @commands.command()
     async def remove_sus_word(self, ctx, *, word:str):
@@ -36,9 +36,9 @@ class AdminCommands(commands.Cog):
                 sus_list = utils.get_sus_list()
                 sus_list.remove(word)
                 dbfunc.set_sus_words(sus_list)
-                await ctx.send(":thumbsup:")
+                await ctx.respond(":thumbsup:")
             except:
-                await ctx.send("word does not exist in list")
+                await ctx.respond("word does not exist in list")
 
     @commands.command()
     async def remove_sus_word_spanish(self, ctx, *, word:str):
@@ -47,20 +47,20 @@ class AdminCommands(commands.Cog):
                 sus_list_spanish = utils.get_sus_list_spanish()
                 sus_list_spanish.remove(word)
                 dbfunc.set_sus_words_spanish(sus_list_spanish)
-                await ctx.send(":thumbsup:")
+                await ctx.respond(":thumbsup:")
             except:
-                await ctx.send("word does not exist in list")
+                await ctx.respond("word does not exist in list")
     
     @commands.command()
     async def add_blacklisted_word(self, ctx, *, word:str):
         if ctx.author.id == 264034992970006528:
             blacklist = utils.get_blacklist()
             if word in blacklist:
-                await ctx.send("word in blacklist")
+                await ctx.respond("word in blacklist")
                 return
             blacklist.append(word)
             dbfunc.set_blacklisted_words(blacklist)
-            await ctx.send(":thumbsup:")
+            await ctx.respond(":thumbsup:")
     
     @commands.command()
     async def remove_blacklisted_word(self, ctx, * , word:str):
@@ -69,15 +69,15 @@ class AdminCommands(commands.Cog):
                 blacklist = utils.get_blacklist()
                 blacklist.remove(word)
                 dbfunc.set_blacklisted_words(blacklist)
-                await ctx.send(":thumbsup:")
+                await ctx.respond(":thumbsup:")
             except:
-                await ctx.send("word does not exist in list")
+                await ctx.respond("word does not exist in list")
     
     @commands.command()
     async def view_blacklisted_words(self, ctx):
         if ctx.author.id == 264034992970006528:
             blacklist = utils.get_blacklist()
-            await ctx.send(", ".join(blacklist))
+            await ctx.respond(", ".join(blacklist))
 
     @commands.command()
     async def clear(self, ctx, number:int):
@@ -85,7 +85,7 @@ class AdminCommands(commands.Cog):
 
     @commands.command()
     async def servers(self, ctx):
-        await ctx.send(str(len(self.client.guilds)))
+        await ctx.respond(str(len(self.client.guilds)))
 
 def setup(bot):
     bot.add_cog(AdminCommands(bot))

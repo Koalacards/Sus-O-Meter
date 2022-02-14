@@ -1,12 +1,12 @@
 import discord
-from discord.ext import commands
-from discord.ext import tasks
-from discord_slash import SlashCommand
+from discord.ext import commands, tasks
 from confidential import RUN_ID, DBL_TOKEN
 import topgg
 
-client = commands.Bot(".")
-slash= SlashCommand(client, sync_commands=True, override_type=True)
+intents = discord.Intents.default()
+intents.messages = True
+
+client = commands.Bot(command_prefix=".", intents=intents)
 client.topggpy = topgg.DBLClient(client, DBL_TOKEN)
 
 client.load_extension('cogs.admincommands')
@@ -24,9 +24,9 @@ async def on_ready():
 async def reloadCog(ctx, cog):
     if ctx.author.display_name == 'Koalacards':
         client.reload_extension(cog)
-        await ctx.send("Cog has been reloaded")
+        await ctx.respond("Cog has been reloaded")
     else:
-        await ctx.send("You are not my creator")
+        await ctx.respond("You are not my creator")
 
 @tasks.loop(minutes=30)
 async def update_stats():

@@ -1,54 +1,15 @@
-from discord_slash.utils.manage_components import create_button, create_actionrow
-from discord_slash.model import ButtonStyle
-from discord_slash.cog_ext import manage_commands
-
-
-invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
-support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
-vote_button = create_button(label="Vote", style=ButtonStyle.URL, url="https://top.gg/bot/876097748255014932/vote")
-github_button = create_button(label="Github", style=ButtonStyle.URL, url="https://github.com/Koalacards/Sus-O-Meter/")
-
-buttons = [invite_button, support_button, vote_button, github_button]
-
-action_row = create_actionrow(*buttons)
+import discord
+class ButtonRow(discord.ui.View):
+    def __init__(self) -> None:
+        super().__init__()
+        self.add_item(discord.ui.Button(label="Invite", url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands"))
+        self.add_item(discord.ui.Button(label="Support", url="https://discord.gg/5Jn32Upk4M"))
+        self.add_item(discord.ui.Button(label="Vote", url="https://top.gg/bot/876097748255014932/vote"))
+        self.add_item(discord.ui.Button(label="Github", url="https://github.com/Koalacards/Sus-O-Meter/"))
 
 #For testing with beta
 guild_ids=[876103457407385661]
 
-suggest_sus_word_options=[
-    manage_commands.create_option(
-        name="word",
-        description="A word that should be considered sus (can't contain spaces)!",
-        option_type=3,
-        required=True
-    )
-]
-
-language_options=[
-    manage_commands.create_option(
-        name="language",
-        description="The language of the bot",
-        option_type=3,
-        required=True,
-        choices=[
-            "English",
-            "Español"
-        ]
-    )
-]
-
-list_type_options=[
-    manage_commands.create_option(
-        name="list_type",
-        description="The type of list the server will use (Community is a premade list, Custom is your own!)",
-        option_type=3,
-        required=True,
-        choices=[
-            "Community",
-            "Custom"
-        ]
-    )
-]
 SUGGESTION_CHANNEL=928837547403149332
 num_messages_to_search = 1000
 kinda_sus_pictures=["https://i.etsystatic.com/26195327/r/il/b9103b/2797002083/il_fullxfull.2797002083_t400.jpg",
