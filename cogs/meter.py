@@ -6,7 +6,7 @@ import db.dbfunc as dbfunc
 import random
 import nltk
 from nltk.tokenize import word_tokenize
-from vars import kinda_sus_pictures, num_messages_to_search, action_row, suggest_sus_word_options, language_options, SUGGESTION_CHANNEL, guild_ids
+from vars import *
 
 nltk.download('punkt')
 
@@ -144,6 +144,7 @@ class Meter(commands.Cog):
             "**/sus-o-meter**: Runs the Sus-O-Meter on the channel the command is called in to see who is the most sus. Gives the top 10 sus users.\n\n" \
             "**/sus-words**: Shows all of the sus words that the Sus-O-Meter checks for (Shows Community or Custom list based on list type chosen).\n\n" \
             "**/suggest-sus-word**: Allows you to input a suggestion for a sus word that should be added to the sus list! Word goes directly to the developer for consideration.\n\n" \
+            "**/user-sus-words**: Shows the top 50 sus words a user has said in this channel!\n\n"\
             "**/help**: Shows this page.\n\n"\
             "**/language**: Changes the language to English or Spanish!\n\n" \
             "**CUSTOM LIST COMMANDS** (moderator-only):\n\n" \
@@ -158,6 +159,7 @@ class Meter(commands.Cog):
             "**/sus-o-meter**: Ejecuta el Sus-O-Meter en el canal en el que se llama al comando para ver quién es el más sus. Da los 10 mejores usuarios de sus.\n\n" \
             "**/sus-words**: Muestra todas las sus palabras que busca el Sus-O-Meter (Muestra la comunidad o la lista personalizada según el tipo de lista elegido).\n\n" \
             "**/suggest-sus-word**: ¡Le permite ingresar una sugerencia para una palabra sus que debe agregarse a la lista de sus! Word va directamente al desarrollador para su consideración.\n\n" \
+            "**/user-sus-words**: !Muestra las 50 principales palabras suspensivas que ha dicho un usuario en este canal!\n\n" \
             "**/help**: Muestra esta página.\n\n"\
             "**/language**: ¡Cambia el idioma a inglés o español!\n\n" \
             "**COMANDOS DE LISTA PERSONALIZADOS** (solo moderador):\n\n" \
@@ -194,7 +196,59 @@ class Meter(commands.Cog):
         else:
             await utils.need_permissions_embed(ctx, language)
 
+    @cog_ext.cog_slash(name="user-sus-words",
+                       # guild_ids=guild_ids,
+                       description='Get the top 50 sus words a user has said!', options=user_sus_words_options)
+    async def user_sus_words(self, ctx, user: discord.User):
+        author = user
+        await ctx.defer()
+        language = dbfunc.get_server_language(ctx.guild.id)
+        sus_channel = ctx.channel
+        list_type = dbfunc.get_server_list_type(ctx.guild.id)
+        title = f"Sus words said from user {author.name} in channel #{sus_channel.name}"
+        if language == "Español":
+            title = f"Sus palabras dijeron para la usuaria {author.name} en el canal #{sus_channel.name}"
+        colour = discord.Color.orange()
+        word_dict = await self.sus_words_for_user(sus_channel, author)
 
+        description = ""
+
+        if language == "English":
+            description += f"List type used: **{list_type}** (Use `/list-type` to change)\n\n"
+        elif language == "Español":
+            description += f"Tipo de lista utilizado: **{utils.translate_list_type(list_type)}** (Usa `/list-type` para cambiar)\n\n"
+
+        if len(word_dict.values()) == 0:
+            if language == "English":
+                description += f"User {author.name} has said no sus words in this channel for the past {num_messages_to_search} messages!"
+            elif language == "Español":
+                description += f"Usuaria {author.name} no ha dicho sus palabras en este canal en el pasado {num_messages_to_search} mensajes!"
+        else:
+            if language == "English":
+                description += f"In the last {num_messages_to_search} sent messages to #{sus_channel.name}, user {author.name} has said:\n\n"
+            elif language == "Español":
+                description += f"En los últimos {num_messages_to_search} mensajes enviados a #{sus_channel.name}, usuaria {author.name} ha dicho:\n\n"
+
+        count = 1
+
+
+        for sus_word, word_count in word_dict.items():
+            if count > 50:
+                break
+            eng_times = "times" if word_count > 1 else "time"
+            esp_times = "veces" if word_count > 1 else "vez"
+            if language == "English":
+                description += f"**{sus_word}**: {word_count} {eng_times}!\n"
+            elif language == "Español":
+                description += f"**{sus_word}**: {word_count} {esp_times}!\n"
+
+            count += 1
+
+        embed = utils.create_embed(title, description, colour)
+
+        if len(word_dict.values()) > 0:
+            embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
+        await ctx.send(embed=embed, components=[action_row])
 
     #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
     async def most_sus_users_count(self, channel):
@@ -239,7 +293,44 @@ class Meter(commands.Cog):
 
         print("Returning the sorted dict")
         return sorted_sus_dict
-    
+
+    # Finds the sus words a user has sent in the channel
+    async def sus_words_for_user(self, channel, user: discord.User):
+        language = dbfunc.get_server_language(channel.guild.id)
+        list_type = dbfunc.get_server_list_type(channel.guild.id)
+
+        word_list = utils.get_sus_list()
+        if language == "Español":
+            word_list = utils.get_sus_list_spanish()
+        if list_type == "Custom":
+            word_list = utils.get_custom_list(channel.guild.id)
+        word_dict = {}
+
+        # For each message, check how many sus words are in there are attribute them all to the author
+        async for message in channel.history(limit=num_messages_to_search):
+
+            author = message.author
+            if author == user:
+                content = message.content.lower()
+                if content != "":
+                    try:
+                        content_words = word_tokenize(content)
+                        for word in content_words:
+                            if word in word_list:
+                                previous_word_amount = word_dict.get(word, 0)
+                                word_dict[word] = previous_word_amount + 1
+                    except:
+                        pass
+
+        # Sort the authors by how many sus words they have
+        sorted_sus_list = sorted(word_dict.items(), key=lambda x: x[1], reverse=True)
+        sorted_sus_dict = {}
+
+        for item in sorted_sus_list:
+            sorted_sus_dict[item[0]] = item[1]
+
+        return sorted_sus_dict
+
 
 def setup(bot):
     bot.add_cog(Meter(bot))

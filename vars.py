@@ -49,6 +49,16 @@ list_type_options=[
         ]
     )
 ]
+
+user_sus_words_options =[
+    manage_commands.create_option(
+        name="user",
+        description="The user you want to get their sus information from",
+        option_type=6,
+        required=True,
+    )
+]
+
 SUGGESTION_CHANNEL=928837547403149332
 num_messages_to_search = 1000
 kinda_sus_pictures=["https://i.etsystatic.com/26195327/r/il/b9103b/2797002083/il_fullxfull.2797002083_t400.jpg",

@@ -16,7 +16,7 @@ client.load_extension('cogs.customlists')
 @client.event
 async def on_ready():
     guild_count = str(len(client.guilds))
-    await client.change_presence(activity=discord.Game(name=f"/help in {guild_count} servers | Now with custom lists!"))
+    await client.change_presence(activity=discord.Game(name=f"/help in {guild_count} servers | Now with user-sus-words command!"))
     update_stats.start()
     print("ready")
 
