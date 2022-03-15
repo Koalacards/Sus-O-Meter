@@ -31,7 +31,7 @@ async def reloadCog(ctx, cog):
 @tasks.loop(minutes=30)
 async def update_stats():
     guild_count = str(len(client.guilds))
-    await client.change_presence(activity=discord.Game(name=f"/help in {guild_count} servers | Now with custom lists!"))
+    await client.change_presence(activity=discord.Game(name=f"/help in {guild_count} servers | Now with user-sus-words command!"))
     try:
         await client.topggpy.post_guild_count()
         print(f"Posted server count ({client.topggpy.guild_count})")
