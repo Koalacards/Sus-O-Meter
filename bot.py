@@ -5,7 +5,7 @@ from discord_slash import SlashCommand
 from confidential import RUN_ID, DBL_TOKEN
 import topgg
 
-client = commands.Bot(".")
+client = commands.Bot("~~~")
 slash= SlashCommand(client, sync_commands=True, override_type=True)
 client.topggpy = topgg.DBLClient(client, DBL_TOKEN)
 
