@@ -1,6 +1,8 @@
+from ctypes import util
 import discord
 from discord.ext import commands
-from discord_slash import cog_ext
+from discord import app_commands
+from discord.app_commands import Choice
 import utils
 import db.dbfunc as dbfunc
 import random
@@ -15,15 +17,14 @@ class Meter(commands.Cog):
     def __init__(self, client) -> None:
         self.client = client
 
-    @cog_ext.cog_slash(name='sus-o-meter',
-    #guild_ids=guild_ids,
-    description="Who is the most sus in this channel?")
-    async def sus_o_meter(self, ctx):
+    @app_commands.command(name='sus-o-meter')
+    async def sus_o_meter(self, interaction:discord.Interaction):
+        """Who is the most sus in this channel?"""
         print("Sus-O-Meter command called")
-        await ctx.defer()
-        language = dbfunc.get_server_language(ctx.guild.id)
-        sus_channel= ctx.channel
-        list_type = dbfunc.get_server_list_type(ctx.guild.id)
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
+        sus_channel= interaction.channel
+        list_type = dbfunc.get_server_list_type(guild_id)
         title=f"Sus-O-Meter Evaluation for channel #{sus_channel.name}"
         if language == "Español":
             title=f"Evaluación Sus-O-Meter para canal #{sus_channel.name}"
@@ -65,16 +66,16 @@ class Meter(commands.Cog):
 
         if len(sus_dict.values()) > 0:
             embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
-        await ctx.send(embed=embed, components=[action_row])
+        await utils.send(interaction=interaction, embed=embed, view=url_row)
         print("sus-o-meter embed sent")
 
-    @cog_ext.cog_slash(name='sus-words',
-    #guild_ids=guild_ids,
-    description="Find out what words make people sus!")
-    async def sus_words(self, ctx):
+    @app_commands.command(name='sus-words')
+    async def sus_words(self, interaction:discord.Interaction):
+        """Find out what words make people sus!"""
         print("sus words command called")
-        language = dbfunc.get_server_language(ctx.guild.id)
-        list_type = dbfunc.get_server_list_type(ctx.guild.id)
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
+        list_type = dbfunc.get_server_list_type(guild_id)
 
         title="Sus Words List"
         description=""
@@ -90,7 +91,7 @@ class Meter(commands.Cog):
             description+= f"Tipo de lista utilizado: **{utils.translate_list_type(list_type)}** (Usa `/list-type` para cambiar listas{addition})\n\n"
         
         if list_type == "Custom":
-            custom_list = utils.get_custom_list(ctx.guild.id)
+            custom_list = utils.get_custom_list(guild_id)
             description+=", ".join(custom_list)
         else:
             if language == "English":
@@ -102,42 +103,43 @@ class Meter(commands.Cog):
                 description+=", ".join(sus_list_spanish)
         colour=discord.Color.purple()
 
-        await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+        await utils.send(interaction=interaction, embed=utils.create_embed(title, description, colour), view=url_row)
 
-    @cog_ext.cog_slash(name='suggest-sus-word',
-    #guild_ids=guild_ids,
-    description="Send a sus word suggestion straight to the developer! (can't contain spaces!)", options=suggest_sus_word_options)
-    async def suggest_sus_word(self, ctx, word:str):
+    @app_commands.command(name='suggest-sus-word')
+    @app_commands.describe(word="A word that should be considered sus (can't contain spaces)!")
+    async def suggest_sus_word(self, interaction:discord.Interaction, word:str):
+        """Send a sus word suggestion straight to the developer! (can't contain spaces!)"""
         print("suggest sus word command called")
-        language = dbfunc.get_server_language(ctx.guild.id)
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
         suggestion_channel=self.client.get_channel(SUGGESTION_CHANNEL)
         split = word.split()
         if suggestion_channel is None:
             if language == "English":
-                await ctx.send(embed=utils.create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed('Sus-O-Meter Error', 'Sus-O-Meter could not find the internal suggestion channel. Please report this in our support server if you can!', discord.Color.red()), view=url_row)
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed('Error de Sus-O-Meter', 'Sus-O-Meter no pudo encontrar el canal de sugerencias interno. ¡Informe esto en nuestro servidor de soporte si puede!', discord.Color.red()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed('Error de Sus-O-Meter', 'Sus-O-Meter no pudo encontrar el canal de sugerencias interno. ¡Informe esto en nuestro servidor de soporte si puede!', discord.Color.red()), view=url_row)
         elif split[0] != word:
             if language =="English":
-                await ctx.send(embed=utils.create_embed("Error!", "Your word cannot contain spaces or it will not be seen by Sus-O-Meter. If you wish to suggest a phrase, suggest the words individually (for example, instead of \"sussy baka\" suggest \"sussy\" and \"baka\")", discord.Color.red()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed("Error!", "Your word cannot contain spaces or it will not be seen by Sus-O-Meter. If you wish to suggest a phrase, suggest the words individually (for example, instead of \"sussy baka\" suggest \"sussy\" and \"baka\")", discord.Color.red()), view=url_row)
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed("¡Error!", "Su palabra no puede contener espacios o Sus-O-Meter no la verá. Si desea sugerir una frase, sugiera las palabras individualmente (por ejemplo, en lugar de \"sussy baka\" sugiera \"sussy\" y \"baka\")", discord.Color.red()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed("¡Error!", "Su palabra no puede contener espacios o Sus-O-Meter no la verá. Si desea sugerir una frase, sugiera las palabras individualmente (por ejemplo, en lugar de \"sussy baka\" sugiera \"sussy\" y \"baka\")", discord.Color.red()), view=url_row)
         else:
             if language == "English":
-                await ctx.send(embed=utils.create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed('Success!', 'Your (kinda) sus word has been send to the developer. Thank you!', discord.Color.green()), view=url_row)
             elif language == "Español":
-                await ctx.send(embed=utils.create_embed('Éxito!', 'Su (un poco) palabra de Sus ha sido enviada al desarrollador. ¡Gracias!', discord.Color.green()), components=[action_row])
+                await utils.send(interaction=interaction, embed=utils.create_embed('Éxito!', 'Su (un poco) palabra de Sus ha sido enviada al desarrollador. ¡Gracias!', discord.Color.green()), view=url_row)
 
             blacklist = utils.get_blacklist()
             if word not in blacklist:
-                await suggestion_channel.send(embed=utils.create_embed(f"New Sus word suggestion by {ctx.author.name}", f"Language: {language}\n Word: {word}", discord.Color.green()))
+                await suggestion_channel.send(embed=utils.create_embed(f"New Sus word suggestion by {interaction.user.name}", f"Language: {language}\n Word: {word}", discord.Color.green()))
 
-    @cog_ext.cog_slash(name='help',
-    #guild_ids=guild_ids,
-    description='View all of the commands and learn a bit about Sus-O-Meter!')
-    async def help(self, ctx):
+    @app_commands.command(name='help')
+    async def help(self, interaction: discord.Interaction):
+        """View all of the commands and learn a bit about Sus-O-Meter!"""
         print("help command called")
-        language = dbfunc.get_server_language(ctx.guild.id)
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
 
         title="Sus-O-Meter Help Page"
         description=f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in the past {num_messages_to_search} messages sent in the channel.\n\n The commands are as follows:\n\n" \
@@ -171,40 +173,42 @@ class Meter(commands.Cog):
 
         colour=discord.Color.purple()
 
-        await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+        await utils.send(interaction=interaction, embed=utils.create_embed(title, description, colour), view=url_row)
 
-    @cog_ext.cog_slash(name='language',
-    #guild_ids=guild_ids,
-    description='Set the language of Sus-O-Meter', options=language_options)
-    async def language(self,ctx, language:str):
+    @app_commands.command(name='language')
+    @app_commands.describe(language="The language of the bot")
+    @app_commands.choices(language=language_choices)
+    async def language(self, interaction:discord.Interaction, language:Choice[int]):
+        """Set the language of Sus-O-Meter"""
         print("language command called")
-        author = ctx.author
+        author = interaction.user
         if author.guild_permissions.administrator == True or author.guild_permissions.manage_guild == True:
-            guild_id = ctx.guild.id
-            dbfunc.set_server_language(guild_id, language)
+            guild_id = interaction.guild_id
+            dbfunc.set_server_language(guild_id, language.name)
             title=""
             description=""
             colour=discord.Color.green()
-            if language == "English":
+            if language.name == "English":
                 title="Success!"
                 description="Language Set to `English` Successfully!"
-            elif language == "Español":
+            elif language.name == "Español":
                 title="¡Éxito!"
                 description="¡Idioma configurado en `Español` correctamente!"
 
-            await ctx.send(embed=utils.create_embed(title, description, colour), components=[action_row])
+            await utils.send(interaction=interaction, embed=utils.create_embed(title, description, colour), view=url_row)
         else:
-            await utils.need_permissions_embed(ctx, language)
+            await utils.need_permissions_embed(interaction, language)
 
-    @cog_ext.cog_slash(name="user-sus-words",
-                       # guild_ids=guild_ids,
-                       description='Get the top 50 sus words a user has said!', options=user_sus_words_options)
-    async def user_sus_words(self, ctx, user: discord.User):
+    @app_commands.command(name="user-sus-words")
+    @app_commands.describe(user="The user you want to get their sus information from")
+    async def user_sus_words(self, interaction: discord.Interaction, user: discord.Member):
+        """Get the top 50 sus words a user has said!"""
+        print("user_sus_words command")
         author = user
-        await ctx.defer()
-        language = dbfunc.get_server_language(ctx.guild.id)
-        sus_channel = ctx.channel
-        list_type = dbfunc.get_server_list_type(ctx.guild.id)
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
+        sus_channel = interaction.channel
+        list_type = dbfunc.get_server_list_type(guild_id)
         title = f"Sus words said from user {author.name} in channel #{sus_channel.name}"
         if language == "Español":
             title = f"Sus palabras dijeron para la usuaria {author.name} en el canal #{sus_channel.name}"
@@ -248,7 +252,7 @@ class Meter(commands.Cog):
 
         if len(word_dict.values()) > 0:
             embed.set_image(url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)])
-        await ctx.send(embed=embed, components=[action_row])
+        await utils.send(interaction=interaction, embed=embed, view=url_row)
 
     #Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
     async def most_sus_users_count(self, channel):
@@ -332,5 +336,5 @@ class Meter(commands.Cog):
         return sorted_sus_dict
 
 
-def setup(bot):
-    bot.add_cog(Meter(bot))
+async def setup(bot):
+    await bot.add_cog(Meter(bot))

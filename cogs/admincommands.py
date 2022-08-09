@@ -87,5 +87,5 @@ class AdminCommands(commands.Cog):
     async def servers(self, ctx):
         await ctx.send(str(len(self.client.guilds)))
 
-def setup(bot):
-    bot.add_cog(AdminCommands(bot))
+async def setup(bot):
+    await bot.add_cog(AdminCommands(bot))

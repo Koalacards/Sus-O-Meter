@@ -1,62 +1,27 @@
-from discord_slash.utils.manage_components import create_button, create_actionrow
-from discord_slash.model import ButtonStyle
-from discord_slash.cog_ext import manage_commands
+from discord.ui import Button, View
+from discord import ButtonStyle
+from discord.app_commands import Choice
 
 
-invite_button = create_button(label="Invite", style=ButtonStyle.URL, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
-support_button = create_button(label="Support", style=ButtonStyle.URL, url="https://discord.gg/5Jn32Upk4M")
-vote_button = create_button(label="Vote", style=ButtonStyle.URL, url="https://top.gg/bot/876097748255014932/vote")
-github_button = create_button(label="Github", style=ButtonStyle.URL, url="https://github.com/Koalacards/Sus-O-Meter/")
+invite_button = Button(label="Invite", style=ButtonStyle.url, url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands")
+support_button = Button(label="Support", style=ButtonStyle.url, url="https://discord.gg/5Jn32Upk4M")
+vote_button = Button(label="Vote", style=ButtonStyle.url, url="https://top.gg/bot/876097748255014932/vote")
+github_button = Button(label="Github", style=ButtonStyle.url, url="https://github.com/Koalacards/Sus-O-Meter/")
 
+url_row = View()
 buttons = [invite_button, support_button, vote_button, github_button]
 
-action_row = create_actionrow(*buttons)
+for button in buttons:
+    url_row.add_item(button)
 
-#For testing with beta
-guild_ids=[876103457407385661]
-
-suggest_sus_word_options=[
-    manage_commands.create_option(
-        name="word",
-        description="A word that should be considered sus (can't contain spaces)!",
-        option_type=3,
-        required=True
-    )
+language_choices = [
+    Choice(name="English", value=1),
+    Choice(name="Español", value=2)
 ]
 
-language_options=[
-    manage_commands.create_option(
-        name="language",
-        description="The language of the bot",
-        option_type=3,
-        required=True,
-        choices=[
-            "English",
-            "Español"
-        ]
-    )
-]
-
-list_type_options=[
-    manage_commands.create_option(
-        name="list_type",
-        description="The type of list the server will use (Community is a premade list, Custom is your own!)",
-        option_type=3,
-        required=True,
-        choices=[
-            "Community",
-            "Custom"
-        ]
-    )
-]
-
-user_sus_words_options =[
-    manage_commands.create_option(
-        name="user",
-        description="The user you want to get their sus information from",
-        option_type=6,
-        required=True,
-    )
+list_choices = [
+    Choice(name="Community", value=1),
+    Choice(name="Custom", value=2),
 ]
 
 SUGGESTION_CHANNEL=928837547403149332
