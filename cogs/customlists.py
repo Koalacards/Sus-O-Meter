@@ -111,28 +111,29 @@ class CustomLists(commands.Cog):
                 return
 
             blacklist = utils.get_blacklist()
-            if word in blacklist:
-                if language == "English":
-                    await utils.send(
-                        interaction=interaction,
-                        embed=utils.create_embed(
-                            "Error!",
-                            f"The word you entered is blacklisted by Sus-O-Meter for being derrogatory or inappropriate.",
-                            discord.Color.red(),
-                        ),
-                        view=url_row,
-                    )
-                elif language == "Español":
-                    await utils.send(
-                        interaction=interaction,
-                        embed=utils.create_embed(
-                            "¡Error!",
-                            f"Sus-O-Meter pone en la lista negra la palabra que ingresó por ser despectiva o inapropiada.",
-                            discord.Color.red(),
-                        ),
-                        view=url_row,
-                    )
-                return
+            for blacklisted_word in blacklist:
+                if blacklisted_word.lower() in word.lower():
+                    if language == "English":
+                        await utils.send(
+                            interaction=interaction,
+                            embed=utils.create_embed(
+                                "Error!",
+                                f"The word you entered is blacklisted by Sus-O-Meter for being derrogatory or inappropriate.",
+                                discord.Color.red(),
+                            ),
+                            view=url_row,
+                        )
+                    elif language == "Español":
+                        await utils.send(
+                            interaction=interaction,
+                            embed=utils.create_embed(
+                                "¡Error!",
+                                f"Sus-O-Meter pone en la lista negra la palabra que ingresó por ser despectiva o inapropiada.",
+                                discord.Color.red(),
+                            ),
+                            view=url_row,
+                        )
+                    return
 
             custom_list.append(word)
             dbfunc.set_server_custom_list(guild_id, custom_list)

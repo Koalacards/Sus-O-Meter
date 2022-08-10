@@ -190,14 +190,17 @@ class Meter(commands.Cog):
                 )
 
             blacklist = utils.get_blacklist()
-            if word not in blacklist:
-                await suggestion_channel.send(
-                    embed=utils.create_embed(
-                        f"New Sus word suggestion by {interaction.user.name}",
-                        f"Language: {language}\n Word: {word}",
-                        discord.Color.green(),
-                    )
+            for blacklisted_word in blacklist:
+                if blacklisted_word.lower() not in word.lower():
+                    return
+
+            await suggestion_channel.send(
+                embed=utils.create_embed(
+                    f"New Sus word suggestion by {interaction.user.name}",
+                    f"Language: {language}\n Word: {word}",
+                    discord.Color.green(),
                 )
+            )
 
     @app_commands.command(name="help")
     async def help(self, interaction: discord.Interaction):
