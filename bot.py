@@ -47,13 +47,4 @@ intents.messages = True
 sus_bot = SusBot(command_prefix="~~~", intents=intents)
 
 
-@sus_bot.command()
-async def reloadCog(ctx, cog):
-    if ctx.author.display_name == "Koalacards":
-        sus_bot.reload_extension(cog)
-        await ctx.send("Cog has been reloaded")
-    else:
-        await ctx.send("You are not my creator")
-
-
 sus_bot.run(RUN_ID)

@@ -128,7 +128,7 @@ class AdminCommands(commands.Cog):
 
     @app_commands.command()
     @app_commands.check(check_if_it_is_me)
-    async def reloadCog(self, interaction: discord.Interaction, cog):
+    async def reload_cog(self, interaction: discord.Interaction, cog):
         """DEV COMMAND: Only useable by the creator of Sus-O-Meter"""
         if interaction.user.id == self.id:
             self.client.reload_extension(cog)

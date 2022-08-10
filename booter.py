@@ -16,4 +16,4 @@ while True:
         print(f"[Top 10]")
         for stat in top_stats[:10]:
             print(stat)
-        asyncio.sleep(30)
+        asyncio.sleep(90)
