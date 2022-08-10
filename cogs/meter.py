@@ -1,3 +1,4 @@
+import asyncio
 import random
 
 import discord
@@ -22,6 +23,7 @@ class Meter(commands.Cog):
     async def sus_o_meter(self, interaction: discord.Interaction):
         """Who is the most sus in this channel?"""
         print("Sus-O-Meter command called")
+        await interaction.response.defer()
         guild_id = interaction.guild_id
         language = dbfunc.get_server_language(guild_id)
         sus_channel = interaction.channel
@@ -71,7 +73,7 @@ class Meter(commands.Cog):
             embed.set_image(
                 url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
             )
-        await utils.send(interaction=interaction, embed=embed, view=url_row)
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
         print("sus-o-meter embed sent")
 
     @app_commands.command(name="sus-words")
@@ -288,6 +290,7 @@ class Meter(commands.Cog):
     ):
         """Get the top 50 sus words a user has said!"""
         print("user_sus_words command")
+        await interaction.response.defer()
         author = user
         guild_id = interaction.guild_id
         language = dbfunc.get_server_language(guild_id)
@@ -339,7 +342,7 @@ class Meter(commands.Cog):
             embed.set_image(
                 url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
             )
-        await utils.send(interaction=interaction, embed=embed, view=url_row)
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
 
     # Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
     async def most_sus_users_count(self, channel):
