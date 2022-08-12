@@ -366,10 +366,11 @@ class Meter(commands.Cog):
             if content != "":
                 try:
                     content_words = word_tokenize(content)
-                    for word in content_words:
-                        if word in word_list:
-                            previous_sus_amount = sus_dict.get(author.name, 0)
-                            sus_dict[author.name] = previous_sus_amount + 1
+                    sus_content_filter = filter(lambda word: word in word_list, content_words)
+                    sus_content = len(list(sus_content_filter))
+                    if sus_content > 0:
+                        previous_sus_amount = sus_dict.get(author.name, 0)
+                        sus_dict[author.name] = previous_sus_amount + sus_content
                 except:
                     pass
 
@@ -409,10 +410,11 @@ class Meter(commands.Cog):
                 if content != "":
                     try:
                         content_words = word_tokenize(content)
-                        for word in content_words:
-                            if word in word_list:
-                                previous_word_amount = word_dict.get(word, 0)
-                                word_dict[word] = previous_word_amount + 1
+                        sus_content_filter = filter(lambda word: word in word_list, content_words)
+                        sus_words_in_message = list(sus_content_filter)
+                        for word in sus_words_in_message:
+                            previous_word_amount = word_dict.get(word, 0)
+                            word_dict[word] = previous_word_amount + 1
                     except:
                         pass
 
