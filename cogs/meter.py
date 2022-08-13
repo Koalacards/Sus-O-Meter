@@ -1,5 +1,7 @@
 import asyncio
 import random
+import math
+from typing import Dict
 
 import discord
 import nltk
@@ -20,20 +22,37 @@ class Meter(commands.Cog):
         self.client = client
 
     @app_commands.command(name="sus-o-meter")
-    async def sus_o_meter(self, interaction: discord.Interaction):
+    @app_commands.describe(num_messages_to_search="Number of messages the bot will search in the channel, up to 5000 (default: 1000)")
+    async def sus_o_meter(self, interaction: discord.Interaction, num_messages_to_search: int = 1000):
         """Who is the most sus in this channel?"""
         print("Sus-O-Meter command called")
         await interaction.response.defer()
         guild_id = interaction.guild_id
         language = dbfunc.get_server_language(guild_id)
+
+        if num_messages_to_search > 5000 or num_messages_to_search < 0:
+            title = ""
+            description = ""
+            colour = discord.Color.red()
+            if language == "English":
+                title="Error!"
+                description = "The number of messages to search must be between 0 and 5000!"
+            elif language == "Español":
+                title = "¡Error!"
+                description = "¡El número de mensajes a buscar debe estar entre 0 y 5000!"
+            
+            embed = utils.create_embed(title, description, colour)
+            await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+
+            return
+            
         sus_channel = interaction.channel
         list_type = dbfunc.get_server_list_type(guild_id)
         title = f"Sus-O-Meter Evaluation for channel #{sus_channel.name}"
         if language == "Español":
             title = f"Evaluación Sus-O-Meter para canal #{sus_channel.name}"
         colour = discord.Color.orange()
-        sus_dict = await self.most_sus_users_count(sus_channel)
-
+        sus_dict = await self.most_sus_users_count(sus_channel, num_messages_to_search)
         description = ""
 
         if language == "English":
@@ -73,6 +92,9 @@ class Meter(commands.Cog):
             embed.set_image(
                 url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
             )
+        #Update leaderboard
+        self.update_leaderboard_dict(sus_dict)
+
         await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
         print("sus-o-meter embed sent")
 
@@ -213,11 +235,13 @@ class Meter(commands.Cog):
 
         title = "Sus-O-Meter Help Page"
         description = (
-            f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in the past {num_messages_to_search} messages sent in the channel.\n\n The commands are as follows:\n\n"
+            f"Welcome to Sus-O-Meter! This is a very simple bot that determines the most sus users in a channel based on how many sus words each user has said in a certain number of past messages to the channel.\n\n The commands are as follows:\n\n"
             "**/sus-o-meter**: Runs the Sus-O-Meter on the channel the command is called in to see who is the most sus. Gives the top 10 sus users.\n\n"
+            "**/sus-o-meter-server**: Runs the Sus-O-Meter across all channels in a server, using an equally distributed number of messages per channel (with overflow, if one channel doesnt have a lot of messages). Gives the top 10 sus users.\n\n"
             "**/sus-words**: Shows all of the sus words that the Sus-O-Meter checks for (Shows Community or Custom list based on list type chosen).\n\n"
             "**/suggest-sus-word**: Allows you to input a suggestion for a sus word that should be added to the sus list! Word goes directly to the developer for consideration.\n\n"
             "**/user-sus-words**: Shows the top 50 sus words a user has said in this channel!\n\n"
+            "**/leaderboard**: Shows a top 10 list of most sus words seen by Sus-O-Meter in a channel/server (updates on `/sus-o-meter` and `sus-o-meter-server` calls)\n\n"
             "**/help**: Shows this page.\n\n"
             "**/language**: Changes the language to English or Spanish!\n\n"
             "**CUSTOM LIST COMMANDS** (moderator-only):\n\n"
@@ -230,11 +254,13 @@ class Meter(commands.Cog):
         if language == "Español":
             title = "Página de ayuda de Sus-O-Meter"
             description = (
-                f"¡Bienvenido a Sus-O-Meter! Este es un bot muy simple que determina la mayor cantidad de sus usuarios en un canal en función de la cantidad de sus palabras que cada usuario ha dicho en el pasado {num_messages_to_search} mensajes enviados en el canal.\n\n Los comandos son los siguientes:\n\n"
+                f"¡Bienvenido a Sus-O-Meter! Este es un bot muy simple que determina la mayor cantidad de sus usuarios en un canal en función de la cantidad de sus palabras que cada usuario ha dicho en un cierto número de mensajes pasados ​​al canal.\n\n Los comandos son los siguientes:\n\n"
                 "**/sus-o-meter**: Ejecuta el Sus-O-Meter en el canal en el que se llama al comando para ver quién es el más sus. Da los 10 mejores usuarios de sus.\n\n"
+                "**/sus-o-meter-server**: Ejecuta el Sus-O-Meter a través de todos los canales en un servidor, usando un número igualmente distribuido de mensajes por canal (con desbordamiento, si un canal no tiene muchos mensajes). Ofrece los 10 mejores usuarios de sus.\n\n"
                 "**/sus-words**: Muestra todas las sus palabras que busca el Sus-O-Meter (Muestra la comunidad o la lista personalizada según el tipo de lista elegido).\n\n"
                 "**/suggest-sus-word**: ¡Le permite ingresar una sugerencia para una palabra sus que debe agregarse a la lista de sus! Word va directamente al desarrollador para su consideración.\n\n"
                 "**/user-sus-words**: !Muestra las 50 principales palabras suspensivas que ha dicho un usuario en este canal!\n\n"
+                "**/leaderboard**: Muestra una lista de las 10 principales de la mayoría de las palabras sus vistas por Sus-O-Meter en un canal/servidor (actualizaciones en las llamadas `/sus-o-meter` y `sus-o-meter-server`)\n\n"
                 "**/help**: Muestra esta página.\n\n"
                 "**/language**: ¡Cambia el idioma a inglés o español!\n\n"
                 "**COMANDOS DE LISTA PERSONALIZADOS** (solo moderador):\n\n"
@@ -285,8 +311,9 @@ class Meter(commands.Cog):
 
     @app_commands.command(name="user-sus-words")
     @app_commands.describe(user="The user you want to get their sus information from")
+    @app_commands.describe(num_messages_to_search="Number of messages the bot will search in the channel, up to 5000 (default: 1000)")
     async def user_sus_words(
-        self, interaction: discord.Interaction, user: discord.Member
+        self, interaction: discord.Interaction, user: discord.Member, num_messages_to_search:int=1000
     ):
         """Get the top 50 sus words a user has said!"""
         print("user_sus_words command")
@@ -294,13 +321,30 @@ class Meter(commands.Cog):
         author = user
         guild_id = interaction.guild_id
         language = dbfunc.get_server_language(guild_id)
+
+        if num_messages_to_search > 5000 or num_messages_to_search < 0:
+            title = ""
+            description = ""
+            colour = discord.Color.red()
+            if language == "English":
+                title="Error!"
+                description = "The number of messages to search must be between 0 and 5000!"
+            elif language == "Español":
+                title = "¡Error!"
+                description = "¡El número de mensajes a buscar debe estar entre 0 y 5000!"
+            
+            embed = utils.create_embed(title, description, colour)
+            await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+
+            return
+
         sus_channel = interaction.channel
         list_type = dbfunc.get_server_list_type(guild_id)
         title = f"Sus words said from user {author.name} in channel #{sus_channel.name}"
         if language == "Español":
             title = f"Sus palabras dijeron para la usuaria {author.name} en el canal #{sus_channel.name}"
         colour = discord.Color.orange()
-        word_dict = await self.sus_words_for_user(sus_channel, author)
+        word_dict = await self.sus_words_for_user(sus_channel, author, num_messages_to_search)
 
         description = ""
 
@@ -343,9 +387,109 @@ class Meter(commands.Cog):
                 url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
             )
         await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+    
+    @app_commands.command(name="sus-o-meter-server")
+    async def sus_o_meter_server(self, interaction:discord.Interaction):
+        """Who is the most sus user in your server? This command may take up to a minute to run."""
+        print("sus-o-meter-server command")
+        await interaction.response.defer()
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
+        channels = interaction.guild.text_channels
+
+        messages_per_channel = math.floor(server_messages_to_search / len(channels))
+        total_dictionary = {}
+        overflow = 0
+        for channel in channels:
+            channel_sus_dict, messages_searched = await self.most_sus_users_count(channel, messages_per_channel + overflow, return_messages_searched=True)
+            total_dictionary = self.concat_dict(total_dictionary, channel_sus_dict)
+            overflow += (messages_per_channel - messages_searched)
+        
+        sorted_total_dict = self.sort_dict(total_dictionary)
+
+        name = interaction.guild.name
+
+        list_type = dbfunc.get_server_list_type(guild_id)
+        title = f"Sus-O-Meter Evaluation for server {name} (using {messages_per_channel} messages per channel, with overflow)"
+        if language == "Español":
+            title = f"Evaluación Sus-O-Meter para servidor {name} (usando {messages_per_channel} mensajes por canal, con rebosadero)"
+        colour = discord.Color.orange()
+
+        description = ""
+
+        if language == "English":
+            description += (
+                f"List type used: **{list_type}** (Use `/list-type` to change)\n\n"
+            )
+        elif language == "Español":
+            description += f"Tipo de lista utilizado: **{utils.translate_list_type(list_type)}** (Usa `/list-type` para cambiar)\n\n"
+
+        if len(sorted_total_dict.values()) == 0:
+            if language == "English":
+                description += f"To my surprise, there are no sus words in this server! Everyone must be a crewmate :angel:"
+            elif language == "Español":
+                description += f"Para mi sorpresa, ¡no hay sus palabras en este servidor! Todos deben ser compañeros de tripulación :angel:"
+        else:
+            if language == "English":
+                description += f"In the last {messages_per_channel} messages per channel in server {name}, the most sus users are:\n\n"
+            elif language == "Español":
+                description += f"En los últimos {messages_per_channel} mensajes por canal en servidor {name}, la mayoría de sus usuarios son:\n\n"
+
+        count = 1
+
+        for author_name, sus_words in sorted_total_dict.items():
+            if count > 10:
+                break
+
+            if language == "English":
+                description += f"{count}. **{author_name}** with a total of **{sus_words}** sus words!\n"
+            elif language == "Español":
+                description += f"{count}. **{author_name}** con un total de **{sus_words}** sus palabras!\n"
+
+            count += 1
+        
+        embed = utils.create_embed(title, description, colour)
+
+        if len(sorted_total_dict.values()) > 0:
+            embed.set_image(
+                url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
+            )
+        #Update leaderboard
+        self.update_leaderboard_dict(sorted_total_dict) 
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+
+    @app_commands.command()
+    async def leaderboard(self, interaction:discord.Interaction):
+        """Returns a leaderboard of the most sus words seen by the bot (updated when other commands are run)"""
+        print("leaderboard command")
+        guild_id = interaction.guild_id
+        language = dbfunc.get_server_language(guild_id)
+        leaderboard_dict = dbfunc.get_leaderboard_as_dict()
+        title = f"Leaderboard for the top 10 most sus words seen by the Sus-O-Meter bot:"
+        if language == "Español":
+            title = f"Tabla de clasificación de las 10 palabras más suspicaces vistas por el bot Sus-O-Meter:"
+        colour = discord.Color.orange()
+
+        description=""
+
+        top3_str ={
+            0: ":first_place:",
+            1: ":second_place:",
+            2: ":third_place:",
+        }
+
+        for index, username in enumerate(leaderboard_dict):
+            if language == "English":
+                description += f"{top3_str.get(index, index+1)}: **{username}**, with a total of **{leaderboard_dict.get(username)}** sus words!\n\n"
+            if language == "Español":
+                description += f"¡{top3_str.get(index, index+1)}: **{username}**, con un total de **{leaderboard_dict.get(username)}** sus palabras!\n\n"
+
+        embed=utils.create_embed(title, description, colour)
+
+        await utils.send(interaction=interaction, embed=embed, view=url_row)
 
     # Finds the total number of messages a user has sent in the guild with a keyword in them (if keyword is empty, get total number of messages)
-    async def most_sus_users_count(self, channel):
+    async def most_sus_users_count(self, channel, num_messages_to_search:int, return_messages_searched: bool=False):
         print("in most sus users function")
         language = dbfunc.get_server_language(channel.guild.id)
         list_type = dbfunc.get_server_list_type(channel.guild.id)
@@ -356,13 +500,14 @@ class Meter(commands.Cog):
         if list_type == "Custom":
             word_list = utils.get_custom_list(channel.guild.id)
         sus_dict = {}
-
-        print("Before looping through the 1000 messages")
+        counter = 0
+        print(f"Before looping through the {num_messages_to_search} messages")
         # For each message, check how many sus words are in there are attribute them all to the author
         async for message in channel.history(limit=num_messages_to_search):
 
             author = message.author
             content = message.content.lower()
+            counter += 1
             if content != "":
                 try:
                     content_words = word_tokenize(content)
@@ -374,23 +519,19 @@ class Meter(commands.Cog):
                 except:
                     pass
 
-        print("After looping through the 1000 messages")
+        print(f"After looping through the {num_messages_to_search} messages")
 
         # Sort the authors by how many sus words they have
-        sorted_sus_list = sorted(sus_dict.items(), key=lambda x: x[1], reverse=True)
-
-        print("Completed sorting sus list")
-
-        sorted_sus_dict = {}
-
-        for item in sorted_sus_list:
-            sorted_sus_dict[item[0]] = item[1]
+        sorted_sus_dict = self.sort_dict(sus_dict)
 
         print("Returning the sorted dict")
-        return sorted_sus_dict
+        if return_messages_searched is False:
+            return sorted_sus_dict
+        else:
+            return sorted_sus_dict, counter
 
     # Finds the sus words a user has sent in the channel
-    async def sus_words_for_user(self, channel, user: discord.User):
+    async def sus_words_for_user(self, channel, user: discord.User, num_messages_to_search:int):
         language = dbfunc.get_server_language(channel.guild.id)
         list_type = dbfunc.get_server_list_type(channel.guild.id)
 
@@ -419,14 +560,38 @@ class Meter(commands.Cog):
                         pass
 
         # Sort the authors by how many sus words they have
-        sorted_sus_list = sorted(word_dict.items(), key=lambda x: x[1], reverse=True)
-        sorted_sus_dict = {}
-
-        for item in sorted_sus_list:
-            sorted_sus_dict[item[0]] = item[1]
+        sorted_sus_dict = self.sort_dict(word_dict)
 
         return sorted_sus_dict
+    
+    #Concats two dictionaries together, adding the values of each
+    def concat_dict(self, dict1:dict, dict2:dict) -> Dict:
+        for key, value in dict2.items():
+            dict1[key] = dict1.get(key, 0) + value
+        
+        return dict1
+    
+    def sort_dict(self, dict_to_sort:dict) -> Dict:
+        sorted_list = sorted(dict_to_sort.items(), key=lambda x: x[1], reverse=True)
+        sorted_dict = {}
+        for item in sorted_list:
+            sorted_dict[item[0]] = item[1]
+        return sorted_dict
 
+    def update_leaderboard_dict(self, new_sus_dict: dict) -> Dict:
+        leaderboard_dict = dbfunc.get_leaderboard_as_dict()
+
+        for username, sus_words in new_sus_dict.items():
+            if username in leaderboard_dict.keys():
+                if sus_words >= leaderboard_dict.get(username, 0):
+                    leaderboard_dict[username] = sus_words
+            else:
+                leaderboard_dict[username] = sus_words
+        new_sorted_leaderboard = self.sort_dict(leaderboard_dict)
+
+        top_10_leaderboard = {k : new_sorted_leaderboard[k] for k in list(new_sorted_leaderboard)[:10]}
+                
+        dbfunc.set_new_leaderboard_from_dict(top_10_leaderboard)
 
 async def setup(bot):
     await bot.add_cog(Meter(bot))

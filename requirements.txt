@@ -1,3 +1,4 @@
 git+https://github.com/Rapptz/discord.py
-peewee==3.13.4
-nltk==3.6.6
+peewee
+nltk
+topggpy

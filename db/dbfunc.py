@@ -46,7 +46,7 @@ def set_server_language(id, language):
 
 
 def get_server_language(id):
-    query = query = ServerLanguage.select().where(ServerLanguage.id == id)
+    query = ServerLanguage.select().where(ServerLanguage.id == id)
     if len(query) == 0:
         return "English"
     else:
@@ -88,3 +88,17 @@ def get_server_custom_list(id):
     else:
         for item in query:
             return item.custom_list
+
+def get_leaderboard_as_dict():
+    query = Leaderboard.select()
+    return_dict = {}
+    for item in query:
+        return_dict[item.username] = item.sus_words
+    return return_dict
+
+def set_new_leaderboard_from_dict(leaderboard_dict: dict):
+    query = Leaderboard.delete()
+    query.execute()
+
+    for username, sus_words in leaderboard_dict.items():
+        Leaderboard.create(username=username, sus_words=sus_words)

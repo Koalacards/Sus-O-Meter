@@ -131,7 +131,7 @@ class AdminCommands(commands.Cog):
     async def reload_cog(self, interaction: discord.Interaction, cog: str):
         """DEV COMMAND: Only useable by the creator of Sus-O-Meter"""
         if interaction.user.id == self.id:
-            self.client.reload_extension(cog)
+            await self.client.reload_extension(cog)
             await interaction.response.send_message(
                 "Cog has been reloaded", ephemeral=True
             )
