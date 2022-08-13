@@ -401,9 +401,12 @@ class Meter(commands.Cog):
         total_dictionary = {}
         overflow = 0
         for channel in channels:
-            channel_sus_dict, messages_searched = await self.most_sus_users_count(channel, messages_per_channel + overflow, return_messages_searched=True)
-            total_dictionary = self.concat_dict(total_dictionary, channel_sus_dict)
-            overflow += (messages_per_channel - messages_searched)
+            try:
+                channel_sus_dict, messages_searched = await self.most_sus_users_count(channel, messages_per_channel + overflow, return_messages_searched=True)
+                total_dictionary = self.concat_dict(total_dictionary, channel_sus_dict)
+                overflow += (messages_per_channel - messages_searched)
+            except:
+                pass
         
         sorted_total_dict = self.sort_dict(total_dictionary)
 
