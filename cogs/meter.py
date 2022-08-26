@@ -585,7 +585,7 @@ class Meter(commands.Cog):
         leaderboard_dict = dbfunc.get_leaderboard_as_dict()
 
         for username, sus_words in new_sus_dict.items():
-            if username in leaderboard_dict.keys():
+            if self.username_lower_in_keys(leaderboard_dict.keys(), username):
                 if sus_words >= leaderboard_dict.get(username, 0):
                     leaderboard_dict[username] = sus_words
             else:
@@ -595,6 +595,12 @@ class Meter(commands.Cog):
         top_10_leaderboard = {k : new_sorted_leaderboard[k] for k in list(new_sorted_leaderboard)[:10]}
                 
         dbfunc.set_new_leaderboard_from_dict(top_10_leaderboard)
+    
+    def username_lower_in_keys(self, leaderboard_keys: list, username: str) -> bool:
+        for key in leaderboard_keys:
+            if key.lower() == username.lower():
+                return True
+        return False
 
 async def setup(bot):
     await bot.add_cog(Meter(bot))
