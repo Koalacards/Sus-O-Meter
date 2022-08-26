@@ -215,7 +215,7 @@ class Meter(commands.Cog):
 
             blacklist = utils.get_blacklist()
             for blacklisted_word in blacklist:
-                if blacklisted_word.lower() not in word.lower():
+                if blacklisted_word.lower() in word.lower():
                     return
 
             await suggestion_channel.send(
