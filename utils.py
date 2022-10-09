@@ -70,6 +70,7 @@ async def send(
 ):
     await interaction.response.send_message(embed=embed, view=view)
 
+
 async def followup_send(
     interaction: discord.Interaction, embed: discord.Embed, view: discord.ui.View
 ):

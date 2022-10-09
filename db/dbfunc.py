@@ -89,6 +89,7 @@ def get_server_custom_list(id):
         for item in query:
             return item.custom_list
 
+
 def get_leaderboard_as_dict():
     query = Leaderboard.select()
     return_dict = {}
@@ -96,9 +97,31 @@ def get_leaderboard_as_dict():
         return_dict[item.username] = item.sus_words
     return return_dict
 
+
 def set_new_leaderboard_from_dict(leaderboard_dict: dict):
     query = Leaderboard.delete()
     query.execute()
 
     for username, sus_words in leaderboard_dict.items():
         Leaderboard.create(username=username, sus_words=sus_words)
+
+
+def auto_sus_add(id: int) -> None:
+    query = AutoSusList.select().where(AutoSusList.id == id)
+    if len(query) == 0:
+        AutoSusList.create(id=id)
+    else:
+        return
+
+
+def auto_sus_remove(id: int) -> None:
+    query = AutoSusList.delete().where(AutoSusList.id == id)
+    query.execute()
+
+
+def auto_sus_id_on_list(id: int) -> bool:
+    query = AutoSusList.select().where(AutoSusList.id == id)
+    if len(query) == 0:
+        return False
+    else:
+        return True
