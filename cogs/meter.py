@@ -403,7 +403,7 @@ class Meter(commands.Cog):
             if language == "English":
                 description += f"**{sus_word}**: {word_count} {eng_times}!\n"
             elif language == "Español":
-                description += f"**{sus_word}**: {word_count} {esp_times}!\n"
+                description += f"¡**{sus_word}**: {word_count} {esp_times}!\n"
 
             count += 1
 
@@ -434,12 +434,12 @@ class Meter(commands.Cog):
                     messages_per_channel + overflow,
                     return_messages_searched=True,
                 )
-                total_dictionary = self.concat_dict(total_dictionary, channel_sus_dict)
+                total_dictionary = utils.concat_dict(total_dictionary, channel_sus_dict)
                 overflow += messages_per_channel - messages_searched
             except:
                 pass
 
-        sorted_total_dict = self.sort_dict(total_dictionary)
+        sorted_total_dict = utils.sort_dict(total_dictionary)
 
         name = interaction.guild.name
 
@@ -603,7 +603,7 @@ class Meter(commands.Cog):
         print(f"After looping through the {num_messages_to_search} messages")
 
         # Sort the authors by how many sus words they have
-        sorted_sus_dict = self.sort_dict(sus_dict)
+        sorted_sus_dict = utils.sort_dict(sus_dict)
 
         print("Returning the sorted dict")
         if return_messages_searched is False:
@@ -645,52 +645,10 @@ class Meter(commands.Cog):
                         pass
 
         # Sort the authors by how many sus words they have
-        sorted_sus_dict = self.sort_dict(word_dict)
+        sorted_sus_dict = utils.sort_dict(word_dict)
 
         return sorted_sus_dict
 
-    def sus_words_in_message(message: discord.Message):
-        language = dbfunc.get_server_language(message.guild.id)
-        list_type = dbfunc.get_server_list_type(message.guild.id)
-
-        word_list = utils.get_sus_list()
-        if language == "Español":
-            word_list = utils.get_sus_list_spanish()
-        if list_type == "Custom":
-            word_list = utils.get_custom_list(message.guild.id)
-
-        word_dict = {}
-        content = message.content.lower()
-        if content != "":
-            try:
-                content_words = word_tokenize(content)
-                sus_content_filter = filter(
-                    lambda word: word in word_list, content_words
-                )
-                sus_words_in_message = list(sus_content_filter)
-                for word in sus_words_in_message:
-                    previous_word_amount = word_dict.get(word, 0)
-                    word_dict[word] = previous_word_amount + 1
-            except:
-                return None
-        if word_dict == {}:
-            return None
-
-        return word_dict
-
-    # Concats two dictionaries together, adding the values of each
-    def concat_dict(self, dict1: dict, dict2: dict) -> Dict:
-        for key, value in dict2.items():
-            dict1[key] = dict1.get(key, 0) + value
-
-        return dict1
-
-    def sort_dict(self, dict_to_sort: dict) -> Dict:
-        sorted_list = sorted(dict_to_sort.items(), key=lambda x: x[1], reverse=True)
-        sorted_dict = {}
-        for item in sorted_list:
-            sorted_dict[item[0]] = item[1]
-        return sorted_dict
 
     def update_leaderboard_dict(self, new_sus_dict: dict) -> Dict:
         leaderboard_dict = dbfunc.get_leaderboard_as_dict()
@@ -701,7 +659,7 @@ class Meter(commands.Cog):
                     leaderboard_dict[username] = sus_words
             else:
                 leaderboard_dict[username] = sus_words
-        new_sorted_leaderboard = self.sort_dict(leaderboard_dict)
+        new_sorted_leaderboard = utils.sort_dict(leaderboard_dict)
 
         top_10_leaderboard = {
             k: new_sorted_leaderboard[k] for k in list(new_sorted_leaderboard)[:10]

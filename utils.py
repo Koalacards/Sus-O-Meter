@@ -4,6 +4,7 @@ import discord
 
 import db.dbfunc as dbfunc
 from vars import url_row
+from typing import Dict
 
 
 def get_sus_list():
@@ -75,3 +76,18 @@ async def followup_send(
     interaction: discord.Interaction, embed: discord.Embed, view: discord.ui.View
 ):
     await interaction.followup.send(embed=embed, view=view)
+
+# Concats two dictionaries together, adding the values of each
+def concat_dict(dict1: dict, dict2: dict) -> Dict:
+    for key, value in dict2.items():
+        dict1[key] = dict1.get(key, 0) + value
+
+    return dict1
+
+#Sorts dictionaries by highest to lowest number in reverse (leaderboard style)
+def sort_dict(dict_to_sort: dict) -> Dict:
+    sorted_list = sorted(dict_to_sort.items(), key=lambda x: x[1], reverse=True)
+    sorted_dict = {}
+    for item in sorted_list:
+        sorted_dict[item[0]] = item[1]
+    return sorted_dict
