@@ -33,7 +33,7 @@ class SusBot(commands.AutoShardedBot):
         guild_count = str(len(sus_bot.guilds))
         await sus_bot.change_presence(
             activity=discord.Game(
-                name=f"/help in {guild_count} servers | Now with sus-o-meter-server and leaderboard commands!"
+                name=f"/help in {guild_count} servers | Now with auto_sus commands!"
             )
         )
         try:
