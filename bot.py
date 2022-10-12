@@ -14,6 +14,7 @@ class SusBot(commands.AutoShardedBot):
         await sus_bot.load_extension("cogs.admincommands")
         await sus_bot.load_extension("cogs.meter")
         await sus_bot.load_extension("cogs.customlists")
+        await sus_bot.load_extension("cogs.listeners")
         await self.tree.sync()
         sus_bot.topggpy = topgg.DBLClient(sus_bot, DBL_TOKEN)
 
@@ -44,6 +45,7 @@ class SusBot(commands.AutoShardedBot):
 
 intents = discord.Intents.default()
 intents.messages = True
+intents.message_content = True
 sus_bot = SusBot(command_prefix="~~~", intents=intents)
 
 
