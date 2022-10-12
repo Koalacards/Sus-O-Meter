@@ -1,6 +1,6 @@
 import asyncio
-import random
 import math
+import random
 from typing import Dict
 
 import discord
@@ -648,7 +648,6 @@ class Meter(commands.Cog):
         sorted_sus_dict = utils.sort_dict(word_dict)
 
         return sorted_sus_dict
-
 
     def update_leaderboard_dict(self, new_sus_dict: dict) -> Dict:
         leaderboard_dict = dbfunc.get_leaderboard_as_dict()
