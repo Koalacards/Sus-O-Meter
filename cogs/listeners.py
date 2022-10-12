@@ -27,11 +27,11 @@ class Listeners(commands.Cog):
         embed = _craft_embed(words, guild_id, name)
 
         img_path = _process_picture(name)
-        file = discord.File(img_path)
-        embed.set_image(url=f"attachment://{img_path}")
+        file = discord.File(img_path, filename="image.png")
+        embed.set_image(url=f"attachment://image.png")
 
         channel = message.channel
-        await channel.send(embed=embed, view=url_row, file=file)
+        await channel.send(file=file, embed=embed, view=url_row)
 
         await self.client.process_commands(message)
 
@@ -45,12 +45,10 @@ def _craft_embed(words, guild_id, name):
     description = ""
     colour=discord.Color.dark_orange()
     if language == "English":
-        title = f"{name} has said sus words!"
-        description += f"{name} is a sussy baka :flushed:\n\n"
+        title = f"{name} is a sussy baka! :flushed:"
         description += f"In their last message, {name} said:\n\n"
     elif language == "Español":
-        title = f"¡{name} ha dicho sus palabras!"
-        description += f"{name} es una sussy baka :flushed:\n\n"
+        title = f"¡{name} es una sussy baka! :flushed:"
         description += f"En su último mensaje, {name} dijo:\n\n"
     
     count = 1
@@ -63,7 +61,7 @@ def _craft_embed(words, guild_id, name):
         if language == "English":
             description += f"**{sus_word}**: {word_count} {eng_times}!\n"
         elif language == "Español":
-            description += f"¡**{sus_word}**: {word_count} {esp_times}!\n"
+            description += f"**{sus_word}**: {word_count} {esp_times}!\n"
 
         count += 1
     
@@ -118,6 +116,11 @@ def _process_picture(name: str):
     font = ImageFont.truetype('img/varela-round.regular.ttf', font_size)
 
     edit.text((200 - (length * multiplier), 152), name, font=font, fill=(255, 255, 255))
+
+    base_width = 400
+    wpercent = (base_width/float(img.size[0]))
+    hsize = int((float(img.size[1])*float(wpercent)))
+    img = img.resize((base_width, hsize), Image.ANTIALIAS)
 
     img_path = f'img/{name}_was_the_impostor.png'
 

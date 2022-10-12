@@ -321,7 +321,7 @@ class Meter(commands.Cog):
                 view=url_row,
             )
         else:
-            await utils.need_permissions_embed(interaction, language)
+            await utils.need_permissions_embed(interaction, language.name)
 
     @app_commands.command(name="user-sus-words")
     @app_commands.describe(user="The user you want to get their sus information from")

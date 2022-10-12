@@ -48,6 +48,7 @@ def translate_list_type(list_type):
 
 
 async def need_permissions_embed(interaction: discord.Interaction, language):
+    print(language)
     title = ""
     description = ""
     colour = discord.Color.red()
