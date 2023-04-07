@@ -8,7 +8,7 @@ invite_button = Button(
     url="https://discord.com/oauth2/authorize?client_id=876097748255014932&permissions=2147567616&scope=bot%20applications.commands",
 )
 support_button = Button(
-    label="Support", style=ButtonStyle.url, url="https://discord.gg/5Jn32Upk4M"
+    label="Discord Server", style=ButtonStyle.url, url="https://discord.gg/5Jn32Upk4M"
 )
 vote_button = Button(
     label="Vote",
