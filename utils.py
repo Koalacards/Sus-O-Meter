@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, Optional
 
 import discord
 
@@ -67,16 +67,39 @@ async def need_permissions_embed(interaction: discord.Interaction, language):
 
 
 async def send(
-    interaction: discord.Interaction, embed: discord.Embed, view: discord.ui.View
+    interaction: discord.Interaction,
+    embed: discord.Embed,
+    file: Optional[discord.File] = None,
+    view: Optional[discord.ui.View] = None,
+    ephemeral: bool = False,
 ):
-    await interaction.response.send_message(embed=embed, view=view)
+    kwargs = {}
+    kwargs["embed"] = embed
+    kwargs["ephemeral"] = ephemeral
+    if view:
+        kwargs["view"] = view
+    if file:
+        kwargs["file"] = file
+
+    await interaction.response.send_message(**kwargs)
 
 
 async def followup_send(
-    interaction: discord.Interaction, embed: discord.Embed, view: discord.ui.View
+    interaction: discord.Interaction,
+    embed: discord.Embed,
+    file: Optional[discord.File] = None,
+    view: Optional[discord.ui.View] = None,
+    ephemeral: bool = False,
 ):
-    await interaction.followup.send(embed=embed, view=view)
+    kwargs = {}
+    kwargs["embed"] = embed
+    kwargs["ephemeral"] = ephemeral
+    if view:
+        kwargs["view"] = view
+    if file:
+        kwargs["file"] = file
 
+    await interaction.followup.send(**kwargs)
 
 # Concats two dictionaries together, adding the values of each
 def concat_dict(dict1: dict, dict2: dict) -> Dict:

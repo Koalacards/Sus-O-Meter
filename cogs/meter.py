@@ -1,4 +1,4 @@
-import asyncio
+import os
 import math
 import random
 from typing import Dict
@@ -98,14 +98,19 @@ class Meter(commands.Cog):
 
         embed = utils.create_embed(title, description, colour)
 
+        img_file = None
         if len(sus_dict.values()) > 0:
+            embed_images = os.listdir("embed_img")
+            random_img_filepath = f"embed_img/{embed_images[random.randint(0, len(embed_images) - 1)]}"
+            img_file = discord.File(random_img_filepath, filename="image.png")
             embed.set_image(
-                url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
+                url=f"attachment://image.png"
             )
+        
         # Update leaderboard
         self.update_leaderboard_dict(sus_dict)
 
-        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row, file=img_file)
         print("sus-o-meter embed sent")
 
     @app_commands.command(name="sus-words")
@@ -409,11 +414,15 @@ class Meter(commands.Cog):
 
         embed = utils.create_embed(title, description, colour)
 
+        img_file = None
         if len(word_dict.values()) > 0:
+            embed_images = os.listdir("embed_img")
+            random_img_filepath = f"embed_img/{embed_images[random.randint(0, len(embed_images) - 1)]}"
+            img_file = discord.File(random_img_filepath, filename="image.png")
             embed.set_image(
-                url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
+                url=f"attachment://image.png"
             )
-        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row, file=img_file)
 
     @app_commands.command(name="sus-o-meter-server")
     async def sus_o_meter_server(self, interaction: discord.Interaction):
@@ -484,13 +493,17 @@ class Meter(commands.Cog):
 
         embed = utils.create_embed(title, description, colour)
 
+        img_file=None
         if len(sorted_total_dict.values()) > 0:
+            embed_images = os.listdir("embed_img")
+            random_img_filepath = f"embed_img/{embed_images[random.randint(0, len(embed_images) - 1)]}"
+            img_file = discord.File(random_img_filepath, filename="image.png")
             embed.set_image(
-                url=kinda_sus_pictures[random.randint(0, len(kinda_sus_pictures) - 1)]
+                url=f"attachment://image.png"
             )
         # Update leaderboard
         self.update_leaderboard_dict(sorted_total_dict)
-        await utils.followup_send(interaction=interaction, embed=embed, view=url_row)
+        await utils.followup_send(interaction=interaction, embed=embed, view=url_row, file=img_file)
 
     @app_commands.command()
     async def leaderboard(self, interaction: discord.Interaction):
